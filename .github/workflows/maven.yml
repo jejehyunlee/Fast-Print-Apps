@@ -26,5 +26,5 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: fast-print-apps-jar
+        name: fast-print-apps-1.0.0
         path: target/*.jar
