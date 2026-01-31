@@ -77,19 +77,29 @@
             <div class="table-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-bold m-0">Produk Listing</h5>
-                    <div class="d-flex gap-2">
-                        <select class="form-select shadow-sm" id="statusFilterDropdown"
-                            onchange="filterStatus(this.value)" style="border-radius: 12px; width: 200px;">
-                            <option value="semua" th:selected="${selectedStatus == 'semua'}">Semua Status</option>
-                            <option value="bisa dijual" th:selected="${selectedStatus == 'bisa dijual'}">Bisa Dijual
-                            </option>
-                            <option value="tidak bisa dijual" th:selected="${selectedStatus == 'tidak bisa dijual'}">
-                                Tidak Bisa Dijual</option>
-                        </select>
-                        <button type="button" class="btn btn-primary shadow-sm" onclick="openAddModal()">
-                            + Tambah Produk
-                        </button>
+                    <button type="button" class="btn btn-primary shadow-sm" onclick="openAddModal()">
+                        + Tambah Produk
+                    </button>
+                </div>
+
+                <!-- Unified Table Controls -->
+                <div class="d-flex justify-content-end align-items-center mb-4 gap-3" id="tableControls">
+                    <div id="filterPart" class="d-flex align-items-center gap-2">
+                        <span class="filter-label">Filter by Status:</span>
+                        <div class="filter-group">
+                            <button type="button" class="btn-filter"
+                                th:classappend="${selectedStatus == 'semua' ? 'active' : ''}"
+                                onclick="filterStatus('semua')">Semua</button>
+                            <button type="button" class="btn-filter"
+                                th:classappend="${selectedStatus == 'bisa dijual' ? 'active' : ''}"
+                                onclick="filterStatus('bisa dijual')">Bisa Dijual</button>
+                            <button type="button" class="btn-filter"
+                                th:classappend="${selectedStatus == 'tidak bisa dijual' ? 'active' : ''}"
+                                onclick="filterStatus('tidak bisa dijual')">Tidak Bisa</button>
+                        </div>
                     </div>
+                    <!-- Search part will be moved here by JS -->
+                    <div id="searchPart"></div>
                 </div>
 
                 <div class="table-responsive">
@@ -206,12 +216,20 @@
         /*<![CDATA[*/
 
         $(document).ready(function () {
-            $('#produkTable').DataTable({
+            var table = $('#produkTable').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
                 "pageLength": 5,
                 "lengthMenu": [5, 10, 25],
-                "dom": '<"d-flex justify-content-between align-items-center mb-3"f>t<"d-flex justify-content-between align-items-center mt-3"ip>'
+                "dom": 't<"d-flex justify-content-between align-items-center mt-3"ip>'
             });
+
+            // Re-create search input in our unified container
+            var searchInput = $('<input type="search" class="form-control" placeholder="Cari produk...">')
+                .on('keyup', function () {
+                    table.search(this.value).draw();
+                });
+
+            $('#searchPart').append('<span class="filter-label me-2">Cari:</span>').append(searchInput);
 
             var formModal = new bootstrap.Modal(document.getElementById('formModal'));
             window.formModal = formModal;
