@@ -1,1 +1,11 @@
+com\fastprint\service\ProdukService.class
+com\fastprint\repository\KategoriRepository.class
+com\fastprint\repository\StatusRepository.class
+com\fastprint\entity\Produk.class
 com\fastprint\entity\Kategori.class
+com\fastprint\dto\ProdukDto.class
+com\fastprint\entity\Status.class
+com\fastprint\FastPrintApplication.class
+com\fastprint\controller\DashboardController.class
+com\fastprint\controller\ProdukController.class
+com\fastprint\repository\ProdukRepository.class
