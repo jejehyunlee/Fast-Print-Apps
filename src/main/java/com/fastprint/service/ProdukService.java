@@ -8,6 +8,7 @@ import com.fastprint.repository.KategoriRepository;
 import com.fastprint.repository.ProdukRepository;
 import com.fastprint.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,8 +38,8 @@ public class ProdukService {
     // We can use this to fetch data if needed
     private final WebClient webClient;
 
-    public ProdukService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://recruitment.fastprint.co.id/tes/api_tes_programmer").build();
+    public ProdukService(WebClient.Builder webClientBuilder, @Value("${api.products.url}") String apiUrl) {
+        this.webClient = webClientBuilder.baseUrl(apiUrl).build();
     }
 
     public List<Produk> findAllProduk() {
