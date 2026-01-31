@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,8 +16,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Custom CSS with cache busting -->
+    <link rel="stylesheet" th:href="@{/css/style.css(v=${T(java.lang.System).currentTimeMillis()})}">
 </head>
 
 <body>
@@ -25,28 +26,28 @@
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <span class="logo-icon">💠</span> Fast|Print
+                <span class="logo-icon">💠</span> <span>Fast|Print</span>
             </div>
 
             <ul class="list-unstyled components">
                 <li class="active">
                     <a href="/dashboard">
-                        <span class="icon">🏠</span> Dashboard
+                        <span class="icon"><i class="bi bi-grid-fill"></i></span> <span>Dashboard</span>
                     </a>
                 </li>
                 <li>
                     <a href="/produk">
-                        <span class="icon">📦</span> Master Produk
+                        <span class="icon"><i class="bi bi-box-seam-fill"></i></span> <span>Master Produk</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <span class="icon">🛒</span> Penjualan
+                        <span class="icon"><i class="bi bi-cart-fill"></i></span> <span>Penjualan</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <span class="icon">⚙️</span> Settings
+                        <span class="icon"><i class="bi bi-gear-fill"></i></span> <span>Settings</span>
                     </a>
                 </li>
             </ul>
@@ -57,23 +58,26 @@
             <!-- Header Section -->
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <div>
-                    <span class="text-secondary small">Pages / Dashboard</span>
+                    <span class="text-secondary small fw-bold text-uppercase">Pages / Dashboard</span>
                     <h3 class="fw-bold mt-1 text-primary-dark">Main Dashboard</h3>
                 </div>
 
-                <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2">
-                    <span class="badge rounded-circle bg-light text-primary p-2">👤</span>
-                    <span class="small fw-semibold">Tes Programmer</span>
+                <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-3">
+                    <div class="stat-icon m-0"
+                        style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--primary-soft); color: var(--primary-color);">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <span class="small fw-bold">Tes Programmer</span>
                 </div>
             </div>
 
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="dashboard-card d-flex align-items-center">
-                        <div class="stat-icon bg-light text-primary">
+                        <div class="stat-icon bg-light text-primary m-0">
                             <i class="bi bi-box-seam"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-4">
                             <div class="stat-title">Total Produk</div>
                             <div class="stat-value" th:text="${totalProduk}">0</div>
                         </div>
@@ -81,10 +85,10 @@
                 </div>
                 <div class="col-md-4">
                     <div class="dashboard-card d-flex align-items-center">
-                        <div class="stat-icon" style="color: #05CD99; background: rgba(5, 205, 153, 0.1);">
+                        <div class="stat-icon m-0" style="color: #05CD99; background: rgba(5, 205, 153, 0.1);">
                             <i class="bi bi-patch-check"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-4">
                             <div class="stat-title">Bisa Dijual</div>
                             <div class="stat-value" th:text="${bisaDijualCount}">0</div>
                         </div>
@@ -92,10 +96,10 @@
                 </div>
                 <div class="col-md-4">
                     <div class="dashboard-card d-flex align-items-center">
-                        <div class="stat-icon" style="color: #EE5D50; background: rgba(238, 93, 80, 0.1);">
+                        <div class="stat-icon m-0" style="color: #EE5D50; background: rgba(238, 93, 80, 0.1);">
                             <i class="bi bi-exclamation-octagon"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-4">
                             <div class="stat-title">Tidak Bisa Dijual</div>
                             <div class="stat-value" th:text="${tidakBisaDijualCount}">0</div>
                         </div>
@@ -107,7 +111,7 @@
             <div class="row mb-5">
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
-                        <h5 class="mb-4">Perbandingan Status</h5>
+                        <h5 class="fw-bold mb-4">Perbandingan Status</h5>
                         <div class="chart-container d-flex justify-content-center">
                             <canvas id="statusChart"></canvas>
                         </div>
@@ -115,7 +119,7 @@
                 </div>
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
-                        <h5 class="mb-4">Produk per Kategori</h5>
+                        <h5 class="fw-bold mb-4">Produk per Kategori</h5>
                         <div class="chart-container">
                             <canvas id="kategoriChart"></canvas>
                         </div>
@@ -148,15 +152,22 @@
                         data: [bisaDijual, tidakBisaDijual],
                         backgroundColor: ['#05CD99', '#EE5D50'],
                         borderWidth: 0,
-                        hoverOffset: 10
+                        hoverOffset: 12
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '75%',
+                    cutout: '80%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 25,
+                                font: { family: 'Plus Jakarta Sans', weight: '600', size: 12 }
+                            }
+                        }
                     }
                 }
             });
@@ -170,18 +181,28 @@
                         label: 'Jumlah Produk',
                         data: katCounts,
                         backgroundColor: '#4318FF',
-                        borderRadius: 8,
-                        barThickness: 30
+                        borderRadius: 12,
+                        barThickness: 32,
+                        hoverBackgroundColor: '#3311db'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                            ticks: { stepSize: 1, color: '#A3AED0', font: { family: 'Plus Jakarta Sans' } }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#A3AED0', font: { family: 'Plus Jakarta Sans', weight: '600' } }
+                        }
                     },
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: { display: false }
+                    }
                 }
             });
         });

@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,8 +22,8 @@
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Custom CSS with cache busting -->
+    <link rel="stylesheet" th:href="@{/css/style.css(v=${T(java.lang.System).currentTimeMillis()})}">
 </head>
 
 <body>
@@ -31,28 +32,28 @@
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <span class="logo-icon">💠</span> Fast|Print
+                <span class="logo-icon">💠</span> <span>Fast|Print</span>
             </div>
 
             <ul class="list-unstyled components">
                 <li>
                     <a href="/dashboard">
-                        <span class="icon">🏠</span> Dashboard
+                        <span class="icon"><i class="bi bi-grid-fill"></i></span> <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="active">
                     <a href="/produk">
-                        <span class="icon">📦</span> Master Produk
+                        <span class="icon"><i class="bi bi-box-seam-fill"></i></span> <span>Master Produk</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <span class="icon">🛒</span> Penjualan
+                        <span class="icon"><i class="bi bi-cart-fill"></i></span> <span>Penjualan</span>
                     </a>
                 </li>
                 <li>
                     <a href="#">
-                        <span class="icon">⚙️</span> Settings
+                        <span class="icon"><i class="bi bi-gear-fill"></i></span> <span>Settings</span>
                     </a>
                 </li>
             </ul>
@@ -63,32 +64,38 @@
             <!-- Header Section -->
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <div>
-                    <span class="text-secondary small">Pages / Master Produk</span>
-                    <h3 class="fw-bold mt-1 text-primary-dark">Master Produk</h3>
+                    <span class="text-secondary small fw-bold text-uppercase">Pages / Master Produk</span>
+                    <h3 class="fw-bold mt-1 text-primary-dark">Product Management</h3>
                 </div>
 
-                <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2">
-                    <span class="badge rounded-circle bg-light text-primary p-2">👤</span>
-                    <span class="small fw-semibold">Tes Programmer</span>
+                <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-3">
+                    <div class="stat-icon m-0"
+                        style="width: 32px; height: 32px; font-size: 0.9rem; background: var(--primary-soft); color: var(--primary-color);">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <span class="small fw-bold">Tes Programmer</span>
                 </div>
             </div>
 
             <!-- Main Product Table -->
             <div class="table-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold m-0">Produk Listing</h5>
+                    <div>
+                        <h5 class="fw-bold m-0">Produk Listing</h5>
+                        <p class="text-secondary small m-0 mt-1">Kelola daftar produk Anda di sini.</p>
+                    </div>
                     <button type="button" class="btn btn-primary shadow-sm" onclick="openAddModal()">
-                        + Tambah Produk
+                        <i class="bi bi-plus-lg me-2"></i> Tambah Produk
                     </button>
                 </div>
 
                 <!-- Unified Table Controls -->
-                <div class="d-flex justify-content-end align-items-center mb-4 gap-3" id="tableControls">
-                    <div id="filterPart" class="d-flex align-items-center gap-2">
-                        <span class="filter-label">Filter by Status:</span>
+                <div id="tableControls">
+                    <div id="filterPart" class="d-flex align-items-center gap-3">
+                        <span class="filter-label">Status:</span>
                         <div class="filter-group">
                             <button type="button" class="btn-filter"
-                                th:classappend="${selectedStatus == 'semua' ? 'active' : ''}"
+                                th:classappend="${selectedStatus == 'semua' || selectedStatus == null ? 'active' : ''}"
                                 onclick="filterStatus('semua')">Semua</button>
                             <button type="button" class="btn-filter"
                                 th:classappend="${selectedStatus == 'bisa dijual' ? 'active' : ''}"
@@ -119,27 +126,31 @@
                                     <div class="d-flex align-items-center">
                                         <div class="fw-bold text-dark" th:text="${produk.namaProduk}"></div>
                                     </div>
-                                    <small class="text-muted" th:text="'ID: #' + ${produk.idProduk}"></small>
+                                    <small class="text-secondary opacity-50 font-monospace"
+                                        th:text="'ID: #' + ${produk.idProduk}"></small>
                                 </td>
-                                <td th:text="${produk.kategori != null ? produk.kategori.namaKategori : '-'}"></td>
+                                <td>
+                                    <span class="badge bg-light text-dark fw-normal px-2 py-1"
+                                        th:text="${produk.kategori != null ? produk.kategori.namaKategori : '-'}"></span>
+                                </td>
                                 <td class="fw-bold text-primary"
                                     th:text="${'Rp ' + #numbers.formatDecimal(produk.harga, 0, 'COMMA', 0, 'POINT')}">
                                 </td>
                                 <td>
-                                    <span class="badge badge-custom badge-success-soft"
+                                    <span class="badge-custom badge-success-soft"
                                         th:if="${produk.status != null and produk.status.namaStatus == 'bisa dijual'}">
-                                        <i class="bi bi-patch-check-fill"></i> Bisa Dijual
+                                        <i class="bi bi-check-circle-fill"></i> Bisa Dijual
                                     </span>
-                                    <span class="badge badge-custom badge-danger-soft"
+                                    <span class="badge-custom badge-danger-soft"
                                         th:unless="${produk.status != null and produk.status.namaStatus == 'bisa dijual'}">
-                                        <i class="bi bi-exclamation-triangle-fill"></i> Tidak Bisa
+                                        <i class="bi bi-x-circle-fill"></i> Tidak Bisa
                                     </span>
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
                                         <button class="btn btn-action btn-action-edit"
                                             th:onclick="'openEditModal(' + ${produk.idProduk} + ')'" title="Edit">
-                                            <i class="bi bi-pencil-square"></i>
+                                            <i class="bi bi-pencil-fill"></i>
                                         </button>
                                         <button class="btn btn-action btn-action-delete"
                                             th:onclick="'confirmDelete(' + ${produk.idProduk} + ')'" title="Hapus">
@@ -158,31 +169,30 @@
     <!-- Modal Form -->
     <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+            <div class="modal-content">
                 <div class="modal-header border-bottom-0 pb-0">
                     <h5 class="modal-title fw-bold" id="formModalLabel">Tambah Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body">
                     <form th:action="@{/produk/save}" th:object="${produk}" method="post" id="productForm">
                         <input type="hidden" id="idProduk" th:field="*{idProduk}" />
 
                         <div class="mb-3">
                             <label for="namaProduk" class="form-label text-secondary small fw-bold">NAMA PRODUK</label>
                             <input type="text" class="form-control" id="namaProduk" th:field="*{namaProduk}" required
-                                style="border-radius: 12px; height: 45px;" />
+                                placeholder="Masukkan nama produk..." />
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="harga" class="form-label text-secondary small fw-bold">HARGA (RP)</label>
                                 <input type="number" class="form-control" id="harga" th:field="*{harga}" required
-                                    style="border-radius: 12px; height: 45px;" />
+                                    placeholder="0" />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="kategori" class="form-label text-secondary small fw-bold">KATEGORI</label>
-                                <select class="form-select" id="kategori" th:field="*{kategori.idKategori}"
-                                    style="border-radius: 12px; height: 45px;">
+                                <select class="form-select" id="kategori" th:field="*{kategori.idKategori}">
                                     <option th:each="kat : ${kategoris}" th:value="${kat.idKategori}"
                                         th:text="${kat.namaKategori}"></option>
                                 </select>
@@ -191,14 +201,14 @@
 
                         <div class="mb-4">
                             <label for="status" class="form-label text-secondary small fw-bold">STATUS</label>
-                            <select class="form-select" id="status" th:field="*{status.idStatus}"
-                                style="border-radius: 12px; height: 45px;">
+                            <select class="form-select" id="status" th:field="*{status.idStatus}">
                                 <option th:each="stat : ${statuses}" th:value="${stat.idStatus}"
                                     th:text="${stat.namaStatus}"></option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-4 fw-bold">Simpan Data</button>
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-4 fw-bold">Simpan Data
+                            Produk</button>
                     </form>
                 </div>
             </div>
@@ -218,18 +228,18 @@
         $(document).ready(function () {
             var table = $('#produkTable').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
-                "pageLength": 5,
-                "lengthMenu": [5, 10, 25],
-                "dom": 't<"d-flex justify-content-between align-items-center mt-3"ip>'
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "dom": 't<"d-flex justify-content-between align-items-center mt-4"ip>'
             });
 
-            // Re-create search input in our unified container
-            var searchInput = $('<input type="search" class="form-control" placeholder="Cari produk...">')
+            // Custom search input styling
+            var searchInput = $('<input type="search" class="form-control" placeholder="Cari nama produk...">')
                 .on('keyup', function () {
                     table.search(this.value).draw();
                 });
 
-            $('#searchPart').append('<span class="filter-label me-2">Cari:</span>').append(searchInput);
+            $('#searchPart').append('<span class="filter-label">Cari:</span>').append(searchInput);
 
             var formModal = new bootstrap.Modal(document.getElementById('formModal'));
             window.formModal = formModal;
@@ -256,7 +266,12 @@
                 if (data.status) $('#status').val(data.status.idStatus);
                 window.formModal.show();
             }).fail(function () {
-                Swal.fire('Error', 'Gagal mengambil data produk', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Tidak dapat mengambil data produk.',
+                    confirmButtonColor: '#4318FF'
+                });
             });
         }
 
@@ -277,12 +292,17 @@
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Hapus Produk?',
-                text: "Data tidak bisa dikembalikan!",
+                text: "Data yang dihapus tidak dapat dipulihkan!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#EE5D50',
                 cancelButtonColor: '#A3AED0',
-                confirmButtonText: 'Ya, Hapus'
+                confirmButtonText: 'Ya, Hapus Data',
+                cancelButtonText: 'Batalkan',
+                reverseButtons: true,
+                customClass: {
+                    container: 'my-swal'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '/produk/delete/' + id;
