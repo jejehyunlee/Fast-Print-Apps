@@ -320,21 +320,38 @@ h3 {
 .table thead th {
     background: transparent !important;
     color: var(--text-secondary) !important;
-    border-bottom: 1px solid #E9EDF7 !important;
+    border-bottom: 2px solid #F4F7FE !important;
     font-size: 0.75rem;
     text-transform: uppercase;
-    font-weight: 700;
-    padding: 15px 10px;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    padding: 16px 12px;
+    letter-spacing: 0.8px;
 }
 
 .table tbody td {
-    padding: 20px 10px;
+    padding: 24px 12px;
     border-bottom: 1px solid #F4F7FE;
     color: var(--text-primary);
     font-weight: 600;
     font-size: 0.95rem;
     vertical-align: middle;
+}
+
+/* Product Nama & ID consistency */
+.product-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1B2559;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    max-width: 350px;
+}
+
+.product-id {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: block;
 }
 
 .table tr:last-child td {
@@ -343,24 +360,33 @@ h3 {
 
 /* Badges */
 .badge-custom {
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    /* Increased for better legibility */
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     border: none;
+    white-space: nowrap;
+    min-width: 120px;
+    /* Consistent width */
+    justify-content: center;
 }
 
 .badge-success-soft {
-    background-color: #e6fffa;
-    color: var(--success-color);
+    background-color: #DEF7EC;
+    /* Light green background */
+    color: #03543F;
+    /* Dark green text */
 }
 
 .badge-danger-soft {
-    background-color: #fff5f5;
-    color: var(--danger-color);
+    background-color: #FDE8E8;
+    /* Light red background */
+    color: #9B1C1C;
+    /* Dark red text */
 }
 
 /* Action Buttons */

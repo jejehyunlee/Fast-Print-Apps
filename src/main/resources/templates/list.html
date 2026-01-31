@@ -123,11 +123,8 @@
                         <tbody>
                             <tr th:each="produk : ${produks}">
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="fw-bold text-dark" th:text="${produk.namaProduk}"></div>
-                                    </div>
-                                    <small class="text-secondary opacity-50 font-monospace"
-                                        th:text="'ID: #' + ${produk.idProduk}"></small>
+                                    <div class="product-name" th:text="${produk.namaProduk}"></div>
+                                    <span class="product-id" th:text="'ID: #' + ${produk.idProduk}"></span>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark fw-normal px-2 py-1"
@@ -228,7 +225,7 @@
         $(document).ready(function () {
             var table = $('#produkTable').DataTable({
                 "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
-                "pageLength": 10,
+                "pageLength": 5,
                 "lengthMenu": [5, 10, 25, 50],
                 "dom": 't<"d-flex justify-content-between align-items-center mt-4"ip>'
             });
