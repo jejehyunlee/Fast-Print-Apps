@@ -92,8 +92,8 @@ public class ProdukService {
     // Logic to sync from API
     public void syncDataFromApi() {
         try {
-            // Calculate Username: tesprogrammer + ddMMyy + C + HH
-            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            // Force menggunakan Timezone WIB (Asia/Jakarta) agar sinkron dengan server API
+            java.time.ZonedDateTime now = java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Jakarta"));
             String datePart = now.format(java.time.format.DateTimeFormatter.ofPattern("ddMMyy"));
             String hourPart = now.format(java.time.format.DateTimeFormatter.ofPattern("HH"));
             String username = "tesprogrammer" + datePart + "C" + hourPart;
