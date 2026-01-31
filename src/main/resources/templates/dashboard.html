@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Dashboard | FastPrint</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <span class="logo-icon">💠</span> Fast|Print
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="/dashboard">
+                        <span class="icon">🏠</span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/produk">
+                        <span class="icon">📦</span> Master Produk
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icon">🛒</span> Penjualan
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icon">⚙️</span> Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <span class="text-secondary small">Pages / Dashboard</span>
+                    <h3 class="fw-bold mt-1 text-primary-dark">Main Dashboard</h3>
+                </div>
+
+                <div class="bg-white rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2">
+                    <span class="badge rounded-circle bg-light text-primary p-2">👤</span>
+                    <span class="small fw-semibold">Tes Programmer</span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="dashboard-card d-flex align-items-center">
+                        <div class="stat-icon bg-light text-primary">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-title">Total Produk</div>
+                            <div class="stat-value" th:text="${totalProduk}">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card d-flex align-items-center">
+                        <div class="stat-icon" style="color: #05CD99; background: rgba(5, 205, 153, 0.1);">
+                            <i class="bi bi-patch-check"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-title">Bisa Dijual</div>
+                            <div class="stat-value" th:text="${bisaDijualCount}">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card d-flex align-items-center">
+                        <div class="stat-icon" style="color: #EE5D50; background: rgba(238, 93, 80, 0.1);">
+                            <i class="bi bi-exclamation-octagon"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-title">Tidak Bisa Dijual</div>
+                            <div class="stat-value" th:text="${tidakBisaDijualCount}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row mb-5">
+                <div class="col-lg-6 mb-4">
+                    <div class="dashboard-card">
+                        <h5 class="mb-4">Perbandingan Status</h5>
+                        <div class="chart-container d-flex justify-content-center">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="dashboard-card">
+                        <h5 class="mb-4">Produk per Kategori</h5>
+                        <div class="chart-container">
+                            <canvas id="kategoriChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Charts Initialization
+        document.addEventListener("DOMContentLoaded", function () {
+            const bisaDijual = /*[[${bisaDijualCount}]]*/ 0;
+            const tidakBisaDijual = /*[[${tidakBisaDijualCount}]]*/ 0;
+
+            const katLabels = /*[[${kategoriLabels}]]*/[];
+            const katCounts = /*[[${kategoriCounts}]]*/[];
+
+            // Status Chart (Doughnut)
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bisa Dijual', 'Tidak Bisa'],
+                    datasets: [{
+                        data: [bisaDijual, tidakBisaDijual],
+                        backgroundColor: ['#05CD99', '#EE5D50'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
+
+            // Kategori Chart (Bar)
+            new Chart(document.getElementById('kategoriChart'), {
+                type: 'bar',
+                data: {
+                    labels: katLabels,
+                    datasets: [{
+                        label: 'Jumlah Produk',
+                        data: katCounts,
+                        backgroundColor: '#4318FF',
+                        borderRadius: 8,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] }, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+
+</body>
+
+</html>
