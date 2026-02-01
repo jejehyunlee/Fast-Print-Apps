@@ -65,7 +65,9 @@ public class ProdukController {
             result.rejectValue("namaProduk", "error.produk", "Nama Produk tidak boleh kosong");
         }
         if (produk.getHarga() == null) {
-            result.rejectValue("harga", "error.produk", "Harga harus berupa angka");
+            result.rejectValue("harga", "error.produk", "Harga tidak boleh kosong");
+        } else if (produk.getHarga() < 0) {
+            result.rejectValue("harga", "error.produk", "Harga tidak boleh negatif");
         }
 
         if (result.hasErrors()) {
