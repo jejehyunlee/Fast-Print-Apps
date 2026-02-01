@@ -93,23 +93,52 @@ body {
 }
 
 #sidebar .sidebar-header {
-    padding: 40px 30px;
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    letter-spacing: -0.5px;
+    padding: 30px 25px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
-#sidebar .logo-icon {
-    font-size: 1.8rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+.branding {
+    display: flex;
+    flex-direction: column;
 }
+
+.logo-text {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.text-gold {
+    color: #8B7344;
+    /* Gold/Brown color from logo */
+}
+
+.text-grey {
+    color: #555555;
+    /* Dark grey from logo */
+}
+
+.tagline {
+    font-size: 0.7rem;
+    color: #888888;
+    font-weight: 500;
+    margin-top: 2px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Extra CMYK indicator if you want it to be super detail */
+.branding::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, #F9D423 25%, #E91E63 25%, #E91E63 50%, #00BCD4 50%, #00BCD4 75%, #333 75%);
+    border-radius: 2px;
+}
+
 
 #sidebar ul.components {
     padding: 0 15px;
@@ -285,9 +314,10 @@ h3 {
 }
 
 .btn-filter.active {
-    background: var(--primary-color) !important;
-    color: white !important;
-    box-shadow: 0px 4px 12px rgba(67, 24, 255, 0.25);
+    background: #ffffff !important;
+    color: var(--primary-color) !important;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Search Box Styling */
@@ -335,16 +365,21 @@ h3 {
     font-weight: 600;
     font-size: 0.95rem;
     vertical-align: middle;
+    white-space: nowrap;
+    /* Prevent text stacking */
 }
 
 /* Product Nama & ID consistency */
 .product-name {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #1B2559;
+    color: #000000;
+    /* Pure black as requested */
     margin-bottom: 4px;
     line-height: 1.4;
     max-width: 350px;
+    white-space: normal;
+    /* Allow wrapping for product names */
 }
 
 .product-id {
@@ -360,33 +395,32 @@ h3 {
 
 /* Badges */
 .badge-custom {
-    padding: 8px 14px;
-    border-radius: 10px;
+    padding: 4px 10px;
+    /* Reduced padding */
+    border-radius: 8px;
     font-weight: 700;
-    font-size: 0.85rem;
-    /* Increased for better legibility */
+    font-size: 0.7rem;
+    /* Smaller font size (around 11px) */
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     border: none;
     white-space: nowrap;
-    min-width: 120px;
-    /* Consistent width */
+    min-width: 100px;
+    /* Reduced minimum width */
     justify-content: center;
 }
 
 .badge-success-soft {
-    background-color: #DEF7EC;
-    /* Light green background */
+    background: linear-gradient(135deg, #DEF7EC 0%, #E6FFFA 100%);
     color: #03543F;
-    /* Dark green text */
+    border: 1px solid rgba(5, 205, 153, 0.2);
 }
 
 .badge-danger-soft {
-    background-color: #FDE8E8;
-    /* Light red background */
+    background: linear-gradient(135deg, #FDE8E8 0%, #FFF5F5 100%);
     color: #9B1C1C;
-    /* Dark red text */
+    border: 1px solid rgba(238, 93, 80, 0.2);
 }
 
 /* Action Buttons */
@@ -479,31 +513,108 @@ h3 {
     box-shadow: 0 0 0 4px var(--primary-soft) !important;
 }
 
-/* DataTables Pagination */
+/* DataTables Pagination Overhaul */
+.dataTables_wrapper .dataTables_paginate {
+    display: flex !important;
+    align-items: center;
+    background: #f4f7fe;
+    /* Soft background like filter group */
+    padding: 4px;
+    border-radius: 12px;
+    border: none !important;
+    gap: 4px;
+    margin-top: 15px;
+    width: fit-content;
+}
+
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    padding: 6px 14px !important;
-    margin: 0 2px !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    border: 1px solid transparent !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: var(--primary-color) !important;
-    color: white !important;
+    padding: 2px 10px !important;
+    margin: 0 !important;
     border: none !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: #8F9BBA !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
-    background: var(--primary-light) !important;
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #ffffff !important;
     color: var(--primary-color) !important;
-    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current):not(.disabled) {
+    background: rgba(255, 255, 255, 0.5) !important;
+    color: var(--primary-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    color: #CBD5E0 !important;
+    cursor: default;
+    background: transparent !important;
+}
+
+/* Info Text Styling */
 .dataTables_info {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.75rem;
     color: var(--text-secondary);
+    font-weight: 500;
+    padding-top: 1.5rem !important;
+}
+
+/* Form Validation & Error Styling */
+.text-danger {
+    color: #E02424 !important;
+    /* Stronger red for text */
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.is-invalid {
+    border-color: #E9EDF7 !important;
+    /* Maintain standard border color */
+}
+
+/* Custom error message bubble (Optional for future use) */
+.validation-error {
+    background: transparent;
+    color: #E02424;
+    padding: 2px 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border: none;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Animations */

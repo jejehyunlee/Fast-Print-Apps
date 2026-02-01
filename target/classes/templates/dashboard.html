@@ -26,7 +26,12 @@
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <span class="logo-icon">💠</span> <span>Fast|Print</span>
+                <div class="branding">
+                    <div class="logo-text">
+                        <span class="text-gold">Fast</span><span class="text-grey">Print</span>
+                    </div>
+                    <div class="tagline">Professional Printing Solution</div>
+                </div>
             </div>
 
             <ul class="list-unstyled components">
@@ -112,7 +117,7 @@
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <h5 class="fw-bold mb-4">Perbandingan Status</h5>
-                        <div class="chart-container d-flex justify-content-center">
+                        <div class="chart-container d-flex justify-content-center" style="height: 250px;">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
@@ -120,8 +125,11 @@
                 <div class="col-lg-6 mb-4">
                     <div class="dashboard-card">
                         <h5 class="fw-bold mb-4">Produk per Kategori</h5>
-                        <div class="chart-container">
-                            <canvas id="kategoriChart"></canvas>
+                        <div class="chart-scroll-wrapper"
+                            style="max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+                            <div id="kategoriChartContainer" style="height: 320px;">
+                                <canvas id="kategoriChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -135,7 +143,6 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // Charts Initialization
         document.addEventListener("DOMContentLoaded", function () {
             const bisaDijual = /*[[${bisaDijualCount}]]*/ 0;
             const tidakBisaDijual = /*[[${tidakBisaDijualCount}]]*/ 0;
@@ -143,36 +150,56 @@
             const katLabels = /*[[${kategoriLabels}]]*/[];
             const katCounts = /*[[${kategoriCounts}]]*/[];
 
-            // Status Chart (Doughnut)
+            // Context for gradient
+            const ctxBar = document.getElementById('kategoriChart').getContext('2d');
+            const gradientBlue = ctxBar.createLinearGradient(0, 0, 0, 300);
+            gradientBlue.addColorStop(0, '#4318FF');
+            gradientBlue.addColorStop(1, '#5BC4FF');
+
+            // Status Chart (Pie)
             new Chart(document.getElementById('statusChart'), {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
-                    labels: ['Bisa Dijual', 'Tidak Bisa'],
+                    labels: ['Bisa Dijual', 'Tidak Bisa Dijual'],
                     datasets: [{
                         data: [bisaDijual, tidakBisaDijual],
-                        backgroundColor: ['#05CD99', '#EE5D50'],
-                        borderWidth: 0,
+                        backgroundColor: ['#4318FF', '#FFB547'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff',
                         hoverOffset: 12
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '80%',
                     plugins: {
                         legend: {
                             position: 'bottom',
                             labels: {
                                 usePointStyle: true,
                                 padding: 25,
-                                font: { family: 'Plus Jakarta Sans', weight: '600', size: 12 }
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 12 },
+                                color: '#000000'
                             }
+                        },
+                        tooltip: {
+                            backgroundColor: '#111c44',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            cornerRadius: 10,
+                            displayColors: true
                         }
                     }
                 }
             });
 
-            // Kategori Chart (Bar)
+            // Dynamic height based on number of categories to prevent "numpuk"
+            const minHeightPerBar = 40;
+            const calculatedHeight = Math.max(320, katLabels.length * minHeightPerBar);
+            document.getElementById('kategoriChartContainer').style.height = calculatedHeight + 'px';
+
+            // Kategori Chart (Horizontal Bar for better many-labels handling)
             new Chart(document.getElementById('kategoriChart'), {
                 type: 'bar',
                 data: {
@@ -180,28 +207,47 @@
                     datasets: [{
                         label: 'Jumlah Produk',
                         data: katCounts,
-                        backgroundColor: '#4318FF',
-                        borderRadius: 12,
-                        barThickness: 32,
-                        hoverBackgroundColor: '#3311db'
+                        backgroundColor: gradientBlue,
+                        borderRadius: 6,
+                        barThickness: 20,
+                        hoverBackgroundColor: '#4318FF'
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // Make it horizontal
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            right: 30,
+                            left: 10
+                        }
+                    },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
-                            ticks: { stepSize: 1, color: '#A3AED0', font: { family: 'Plus Jakarta Sans' } }
-                        },
                         x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(163, 174, 208, 0.1)', drawBorder: false },
+                            ticks: {
+                                stepSize: 1,
+                                color: '#000000',
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 11 }
+                            }
+                        },
+                        y: {
                             grid: { display: false, drawBorder: false },
-                            ticks: { color: '#A3AED0', font: { family: 'Plus Jakarta Sans', weight: '600' } }
+                            ticks: {
+                                color: '#000000',
+                                font: { family: 'Plus Jakarta Sans', weight: '700', size: 10 }
+                            }
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#111c44',
+                            padding: 12,
+                            cornerRadius: 10
+                        }
                     }
                 }
             });

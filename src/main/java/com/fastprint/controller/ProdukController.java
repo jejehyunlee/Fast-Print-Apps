@@ -59,7 +59,7 @@ public class ProdukController {
 
     @PostMapping("/save")
     public String saveProduk(@ModelAttribute("produk") Produk produk, BindingResult result,
-            RedirectAttributes redirectAttributes) {
+            Model model, RedirectAttributes redirectAttributes) {
         // Basic Validation
         if (produk.getNamaProduk() == null || produk.getNamaProduk().trim().isEmpty()) {
             result.rejectValue("namaProduk", "error.produk", "Nama Produk tidak boleh kosong");
@@ -67,11 +67,13 @@ public class ProdukController {
         if (produk.getHarga() == null) {
             result.rejectValue("harga", "error.produk", "Harga harus berupa angka");
         }
-        // Additional check: validation for category/status if desired, but dropdowns
-        // ensure validity usually.
 
         if (result.hasErrors()) {
-            return "form";
+            // Re-populate list data for the 'list' view
+            List<Produk> produks = produkService.findProdukBisaDijual();
+            model.addAttribute("produks", produks);
+            model.addAttribute("selectedStatus", "bisa dijual");
+            return "list";
         }
 
         produkService.saveProduk(produk);

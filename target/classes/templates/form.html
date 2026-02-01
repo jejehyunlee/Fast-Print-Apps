@@ -21,8 +21,9 @@
 
     <style>
         .form-container {
-            max-width: 650px;
-            margin: 60px auto;
+            max-width: 500px;
+            /* More compact width */
+            margin: 40px auto;
             animation: fadeIn 0.4s ease-out;
         }
 
@@ -51,8 +52,8 @@
 
     <div class="container overflow-hidden">
         <div class="form-container">
-            <div class="dashboard-card p-5">
-                <div class="text-center mb-5">
+            <div class="dashboard-card p-4">
+                <div class="text-center mb-4">
                     <div class="stat-icon mx-auto bg-primary-soft text-primary mb-3">
                         <i class="bi bi-box-seam-fill"></i>
                     </div>
@@ -61,7 +62,7 @@
                     <p class="text-secondary fw-500">Silahkan lengkapi detail informasi produk di bawah ini.</p>
                 </div>
 
-                <form th:action="@{/produk/save}" th:object="${produk}" method="post">
+                <form th:action="@{/produk/save}" th:object="${produk}" method="post" novalidate>
                     <input type="hidden" th:field="*{idProduk}" />
 
                     <div class="form-section-title">Informasi Dasar</div>
@@ -73,10 +74,13 @@
                             <span class="input-group-text bg-light border-end-0 text-secondary"><i
                                     class="bi bi-tag"></i></span>
                             <input type="text" class="form-control border-start-0 ps-0" id="namaProduk"
-                                th:field="*{namaProduk}" placeholder="Contoh: Kertas A4 80gr" required />
+                                th:field="*{namaProduk}" placeholder="Contoh: Kertas A4 80gr"
+                                th:classappend="${#fields.hasErrors('namaProduk')} ? 'is-invalid' : ''" required />
                         </div>
-                        <div class="text-danger mt-1 small" th:if="${#fields.hasErrors('namaProduk')}"
-                            th:errors="*{namaProduk}"></div>
+                        <div class="validation-error" th:if="${#fields.hasErrors('namaProduk')}">
+                            <i class="bi bi-exclamation-circle-fill me-1"></i>
+                            <span th:errors="*{namaProduk}"></span>
+                        </div>
                     </div>
 
                     <div class="row">
@@ -86,10 +90,12 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 fw-bold text-secondary">Rp</span>
                                 <input type="number" class="form-control border-start-0 ps-0" id="harga"
-                                    th:field="*{harga}" placeholder="0" required />
+                                    th:field="*{harga}" placeholder="0"
+                                    th:classappend="${#fields.hasErrors('harga')} ? 'is-invalid' : ''" required />
                             </div>
-                            <div class="text-danger mt-1 small" th:if="${#fields.hasErrors('harga')}"
-                                th:errors="*{harga}">
+                            <div class="validation-error" th:if="${#fields.hasErrors('harga')}">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i>
+                                <span th:errors="*{harga}"></span>
                             </div>
                         </div>
 

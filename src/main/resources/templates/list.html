@@ -32,7 +32,12 @@
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <span class="logo-icon">💠</span> <span>Fast|Print</span>
+                <div class="branding">
+                    <div class="logo-text">
+                        <span class="text-gold">Fast</span><span class="text-grey">Print</span>
+                    </div>
+                    <div class="tagline">Professional Printing Solution</div>
+                </div>
             </div>
 
             <ul class="list-unstyled components">
@@ -102,7 +107,7 @@
                                 onclick="filterStatus('bisa dijual')">Bisa Dijual</button>
                             <button type="button" class="btn-filter"
                                 th:classappend="${selectedStatus == 'tidak bisa dijual' ? 'active' : ''}"
-                                onclick="filterStatus('tidak bisa dijual')">Tidak Bisa</button>
+                                onclick="filterStatus('tidak bisa dijual')">Tidak Bisa Dijual</button>
                         </div>
                     </div>
                     <!-- Search part will be moved here by JS -->
@@ -127,10 +132,10 @@
                                     <span class="product-id" th:text="'ID: #' + ${produk.idProduk}"></span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark fw-normal px-2 py-1"
+                                    <span class="badge bg-light text-dark fw-bold px-2 py-1"
                                         th:text="${produk.kategori != null ? produk.kategori.namaKategori : '-'}"></span>
                                 </td>
-                                <td class="fw-bold text-primary"
+                                <td class="fw-bold text-dark"
                                     th:text="${'Rp ' + #numbers.formatDecimal(produk.harga, 0, 'COMMA', 0, 'POINT')}">
                                 </td>
                                 <td>
@@ -140,13 +145,13 @@
                                     </span>
                                     <span class="badge-custom badge-danger-soft"
                                         th:unless="${produk.status != null and produk.status.namaStatus == 'bisa dijual'}">
-                                        <i class="bi bi-x-circle-fill"></i> Tidak Bisa
+                                        <i class="bi bi-x-circle-fill"></i> Tidak Bisa Dijual
                                     </span>
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
-                                        <button class="btn btn-action btn-action-edit"
-                                            th:onclick="'openEditModal(' + ${produk.idProduk} + ')'" title="Edit">
+                                        <button type="button" class="btn-action edit"
+                                            th:onclick="'editProduk(' + ${produk.idProduk} + ')'" title="Edit">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
                                         <button class="btn btn-action btn-action-delete"
@@ -166,30 +171,46 @@
     <!-- Modal Form -->
     <div class="modal fade" id="formModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="formModalLabel">Tambah Produk</h5>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 32px; overflow: hidden;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="modal-title fw-bold text-primary" id="formModalLabel" style="font-size: 1.5rem;">Tambah
+                        Produk Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form th:action="@{/produk/save}" th:object="${produk}" method="post" id="productForm">
+                <div class="modal-body p-4">
+                    <form th:action="@{/produk/save}" th:object="${produk}" method="post" id="productForm" novalidate>
+                        <input type="hidden" id="hasErrors" th:value="${#fields.hasAnyErrors()}" />
                         <input type="hidden" id="idProduk" th:field="*{idProduk}" />
 
-                        <div class="mb-3">
-                            <label for="namaProduk" class="form-label text-secondary small fw-bold">NAMA PRODUK</label>
+                        <div class="mb-4">
+                            <label for="namaProduk" class="form-label text-secondary small fw-bold text-uppercase">NAMA
+                                PRODUK</label>
                             <input type="text" class="form-control" id="namaProduk" th:field="*{namaProduk}" required
-                                placeholder="Masukkan nama produk..." />
+                                th:classappend="${#fields.hasErrors('namaProduk')} ? 'is-invalid' : ''"
+                                placeholder="Masukkan nama produk..." style="border-radius: 12px; padding: 12px;" />
+                            <div class="validation-error" th:if="${#fields.hasErrors('namaProduk')}">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i>
+                                <span th:errors="*{namaProduk}"></span>
+                            </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="harga" class="form-label text-secondary small fw-bold">HARGA (RP)</label>
+                            <div class="col-md-6 mb-4">
+                                <label for="harga" class="form-label text-secondary small fw-bold text-uppercase">HARGA
+                                    (RP)</label>
                                 <input type="number" class="form-control" id="harga" th:field="*{harga}" required
-                                    placeholder="0" />
+                                    th:classappend="${#fields.hasErrors('harga')} ? 'is-invalid' : ''" placeholder="0"
+                                    style="border-radius: 12px; padding: 12px;" />
+                                <div class="validation-error" th:if="${#fields.hasErrors('harga')}">
+                                    <i class="bi bi-exclamation-circle-fill me-1"></i>
+                                    <span th:errors="*{harga}"></span>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="kategori" class="form-label text-secondary small fw-bold">KATEGORI</label>
-                                <select class="form-select" id="kategori" th:field="*{kategori.idKategori}">
+                            <div class="col-md-6 mb-4">
+                                <label for="kategori"
+                                    class="form-label text-secondary small fw-bold text-uppercase">KATEGORI</label>
+                                <select class="form-select" id="kategori" th:field="*{kategori.idKategori}" required
+                                    style="border-radius: 12px; padding: 12px;">
                                     <option th:each="kat : ${kategoris}" th:value="${kat.idKategori}"
                                         th:text="${kat.namaKategori}"></option>
                                 </select>
@@ -197,15 +218,25 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="status" class="form-label text-secondary small fw-bold">STATUS</label>
-                            <select class="form-select" id="status" th:field="*{status.idStatus}">
-                                <option th:each="stat : ${statuses}" th:value="${stat.idStatus}"
-                                    th:text="${stat.namaStatus}"></option>
+                            <label for="status"
+                                class="form-label text-secondary small fw-bold text-uppercase">STATUS</label>
+                            <select class="form-select" id="status" th:field="*{status.idStatus}" required
+                                style="border-radius: 12px; padding: 12px;">
+                                <option th:each="st : ${statuses}" th:value="${st.idStatus}" th:text="${st.namaStatus}">
+                                </option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-4 fw-bold">Simpan Data
-                            Produk</button>
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="button" class="btn btn-light py-3 fw-bold flex-grow-1" data-bs-dismiss="modal"
+                                style="border-radius: 15px; font-size: 1.1rem; background: #f4f7fe; border: none; color: #8F9BBA;">
+                                Batal
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-save py-3 fw-bold flex-grow-2"
+                                style="border-radius: 15px; font-size: 1.1rem; background: linear-gradient(135deg, #4318FF 0%, #5BC4FF 100%); border: none; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2);">
+                                Simpan Data Produk
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -224,7 +255,13 @@
 
         $(document).ready(function () {
             var table = $('#produkTable').DataTable({
-                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json" },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json",
+                    "paginate": {
+                        "previous": "Sebelumnya",
+                        "next": "Selanjutnya"
+                    }
+                },
                 "pageLength": 5,
                 "lengthMenu": [5, 10, 25, 50],
                 "dom": 't<"d-flex justify-content-between align-items-center mt-4"ip>'
@@ -240,6 +277,44 @@
 
             var formModal = new bootstrap.Modal(document.getElementById('formModal'));
             window.formModal = formModal;
+
+            // Automatically open modal if there are validation errors
+            var hasErrors = $('#hasErrors').val() === 'true';
+            if (hasErrors) {
+                window.formModal.show();
+            }
+        });
+
+        function editProduk(id) {
+            $.get('/produk/api/' + id, function (data) {
+                $('#idProduk').val(data.idProduk);
+                $('#namaProduk').val(data.namaProduk);
+                $('#harga').val(data.harga);
+                $('#kategori').val(data.kategori.idKategori);
+                $('#status').val(data.status.idStatus);
+
+                $('#formModalLabel').text('Edit Produk');
+                window.formModal.show();
+            }).fail(function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Tidak dapat mengambil data produk.',
+                    confirmButtonColor: '#4318FF'
+                });
+            });
+        }
+
+        // Reset modal when closed
+        $(document).ready(function () {
+            $('#formModal').on('hidden.bs.modal', function () {
+                $('#productForm')[0].reset();
+                $('#idProduk').val('');
+                $('#formModalLabel').text('Tambah Produk Baru');
+                $('.is-invalid').removeClass('is-invalid');
+                $('.validation-error').fadeOut(200, function () { $(this).remove(); });
+                $('#hasErrors').val('false'); // Clear the error flag
+            });
         });
 
         function filterStatus(status) {
