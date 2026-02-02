@@ -116,7 +116,9 @@ public class AiService {
                     +
                     "2. HAPUS Produk: Klik ikon TEMPAT SAMPAH MERAH ( \uD83D\uDDD1️ bi-trash3-fill ) pada kolom Action. Konfirmasi hapus di popup.\n"
                     +
-                    "3. TAMBAH Produk: Klik tombol '+ Tambah Produk' (biru) di pojok kanan atas tabel.\n\n" +
+                    "3. TAMBAH Produk: Klik tombol '+ Tambah Produk' (biru) di pojok kanan atas tabel.\n" +
+                    "4. SYNC API: Klik tombol 'Sync API' (putih/ikon panah memutar) di sebelah tombol Tambah Produk untuk menyinkronkan data otomatis dari server pusat. Tidak ada pilihan menu lain.\n\n"
+                    +
                     "ATURAN JAWABAN:\n" +
                     "- HAPUS semua 'alur' panjang yang tidak relevan (seperti verifikasi alamat, lokasi, material, dll). Fokus HANYA pada ikon tombol di atas.\n"
                     +
