@@ -28,6 +28,13 @@ public class AiService {
 
     public String generateResponse(String prompt) {
         try {
+            // Debug: Cek apakah API Key terbaca (Hanya tampilkan 5 karakter awal)
+            if (apiKey == null || apiKey.isEmpty()) {
+                System.err.println("DEBUG AI: API Key KOSONG!");
+            } else {
+                System.out.println("DEBUG AI: API Key Terdeteksi (" + apiKey.substring(0, 7) + "...)");
+            }
+
             // Mengambil sedikit data nyata untuk konteks AI
             int totalProduk = produkService.findAllProduk().size();
             int bisaDijual = produkService.findProdukBisaDijual().size();
