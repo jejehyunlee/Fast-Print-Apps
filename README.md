@@ -55,17 +55,41 @@ Sistem integrasi otomatis dengan API Recruitment Fast Print:
 
 ## 🚀 Instalasi Lokal
 
-1. Clone repository ini.
-2. Buat database `fastprint_db` di PostgreSQL.
-3. Buat file `.env` di root folder:
+### Prasyarat
+- Java JDK 17 atau lebih baru
+- Maven
+- PostgreSQL Database
+
+### Langkah-langkah
+1. **Clone repository ini:**
+   ```bash
+   git clone https://github.com/jejehyunlee/Fast-Print-Apps.git
+   cd Fast-Print-Apps
+   ```
+
+2. **Buat database di PostgreSQL:**
+   Buat database baru dengan nama `fastprint_db`.
+
+3. **Konfigurasi Environment Database:**
+   Buat file `.env` di root folder project dan sesuaikan konfigurasi berikut (sesuaikan port jika Anda tidak menggunakan default 5432):
    ```properties
+   # Database Configuration
    DATABASE_URL=postgresql://localhost:5432/fastprint_db
    PGUSER=postgres
    PGPASSWORD=password_anda
+   
+   # API Configuration
    API_PRODUCTS_URL=https://recruitment.fastprint.co.id/tes/api_tes_programmer
    GROQ_API_KEY=gsk_anda_disini
    ```
-4. Jalankan perintah: `mvn spring-boot:run`.
+
+4. **Jalankan Aplikasi:**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+5. **Akses Aplikasi:**
+   Buka browser dan kunjungi `http://localhost:8080/dashboard`.
 
 ---
 
@@ -78,4 +102,9 @@ Sistem integrasi otomatis dengan API Recruitment Fast Print:
 - `src/main/resources/static/css`: Styling premium.
 
 ---
+
+## 📝 Lisensi
+
+Project ini dibuat sebagai bagian dari tes teknis Fast Print dan dikembangkan oleh **Jefri Saputra**.
+
 © 2026 Developed by [Jefri Saputra](https://github.com/jejehyunlee)
