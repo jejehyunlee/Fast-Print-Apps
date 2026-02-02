@@ -255,6 +255,7 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script th:inline="javascript">
         /*<![CDATA[*/
@@ -472,27 +473,17 @@
         }
 
         function formatMessage(text) {
-            // Escape HTML to prevent XSS (only if it's from user, but let's do it for safety)
-            let escaped = text.replace(/[&<>"']/g, function (m) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                }[m];
+            if (!text) return '';
+
+            // Configure marked for safe parsing
+            marked.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false
             });
 
-            // Convert **bold** to <strong>
-            escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-            // Convert * item or - item to bullets
-            escaped = escaped.replace(/^\s*[\*\-]\s+(.*)/gm, '• $1');
-
-            // Convert newlines to <br>
-            escaped = escaped.replace(/\n/g, '<br>');
-
-            return escaped;
+            return marked.parse(text);
         }
 
         function appendMessage(sender, text) {

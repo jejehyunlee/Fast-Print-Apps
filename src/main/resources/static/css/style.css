@@ -756,6 +756,21 @@ h3 {
     border-bottom-left-radius: 4px;
 }
 
+.chat-message.ai ul,
+.chat-message.ai ol {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+.chat-message.ai p {
+    margin-bottom: 10px;
+}
+
+.chat-message.ai p:last-child {
+    margin-bottom: 0;
+}
+
 .chat-message.user {
     background: var(--primary-color);
     color: white;
