@@ -59,12 +59,30 @@ public class AiService {
             Map<String, Long> countByKategori = allProduk.stream()
                     .collect(Collectors.groupingBy(p -> p.getKategori().getNamaKategori(), Collectors.counting()));
 
+            // Mencari produk terbaru dan terlama (Audit Trail)
+            Produk terbaru = allProduk.stream()
+                    .filter(p -> p.getCreatedAt() != null)
+                    .max((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
+                    .orElse(null);
+
+            Produk terlama = allProduk.stream()
+                    .filter(p -> p.getCreatedAt() != null)
+                    .min((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
+                    .orElse(null);
+
+            String auditInfo = "";
+            if (terbaru != null)
+                auditInfo += "- Produk Terbaru: " + terbaru.getNamaProduk() + " (" + terbaru.getCreatedAt() + ")\n";
+            if (terlama != null)
+                auditInfo += "- Produk Terlama: " + terlama.getNamaProduk() + " (" + terlama.getCreatedAt() + ")\n";
+
             String dataSummary = String.format(
                     "Ringkasan Data FastPrint Saat Ini:\n" +
                             "- Total Produk: %d\n" +
                             "- Status: %s\n" +
-                            "- Kategori: %s\n",
-                    total, countByStatus.toString(), countByKategori.toString());
+                            "- Kategori: %s\n" +
+                            "%s",
+                    total, countByStatus.toString(), countByKategori.toString(), auditInfo);
 
             String systemContext = "Anda adalah 'FastPrint AI Assistant'. Anda adalah pakar dalam mengelola data percetakan di aplikasi ini.\n"
                     +
