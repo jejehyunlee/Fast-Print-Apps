@@ -61,6 +61,12 @@
                         <span class="icon"><i class="bi bi-gear-fill"></i></span> <span>Settings</span>
                     </a>
                 </li>
+                <li>
+                    <a href="javascript:void(0)" onclick="toggleChat()">
+                        <span class="icon"><i class="bi bi-robot"></i></span> <span>AI Assistant</span><span
+                            class="ai-badge">NEW</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 
@@ -384,6 +390,98 @@
         /*]]>*/
     </script>
 
+    <!-- AI Assistant Chat Widget -->
+    <div id="chat-widget-container">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="title">
+                    <i class="bi bi-robot"></i>
+                    <span>AI Assistant</span>
+                </div>
+                <div class="close-chat" onclick="toggleChat()">
+                    <i class="bi bi-x-lg"></i>
+                </div>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="chat-message ai">
+                    Halo! Saya AI Assistant FastPrint. Ada yang bisa saya bantu hari ini?
+                </div>
+            </div>
+            <div class="typing" id="typingIndicator" style="margin-left: 20px;">AI sedang mengetik...</div>
+            <div class="chat-footer">
+                <form id="chatForm" onsubmit="sendMessage(event)">
+                    <div class="chat-input-group">
+                        <input type="text" id="userInput" placeholder="Tulis pesan..." autocomplete="off">
+                        <button type="submit" class="send-btn">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="chat-toggle-btn" onclick="toggleChat()">
+            <i class="bi bi-robot"></i>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('active');
+            if (chatWindow.classList.contains('active')) {
+                document.getElementById('userInput').focus();
+            }
+        }
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Append user message
+            appendMessage('user', message);
+            input.value = '';
+
+            // Show typing indicator
+            const typing = document.getElementById('typingIndicator');
+            typing.style.display = 'block';
+
+            // Scroll to bottom
+            const chatBody = document.getElementById('chatBody');
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Send to backend
+            fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    typing.style.display = 'none';
+                    appendMessage('ai', data.response);
+                })
+                .catch(error => {
+                    typing.style.display = 'none';
+                    appendMessage('ai', 'Maaf, terjadi kesalahan pada koneksi.');
+                    console.error('Error:', error);
+                });
+        }
+
+        function appendMessage(sender, text) {
+            const chatBody = document.getElementById('chatBody');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message ' + sender;
+            messageDiv.innerText = text;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        /*]]>*/
+    </script>
 </body>
 
 </html>
