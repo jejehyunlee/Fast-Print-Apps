@@ -136,24 +136,31 @@ public class AiService {
                     dataSummary;
 
             // --- SEARCH CONTEXT ---
-            // Jika user menyebutkan nama produk spesifik (misal "TEST"), cari di database
-            // untuk memberikan ID yang benar
             String searchContext = "";
-            if (prompt.toUpperCase().contains("TEST") || prompt.toUpperCase().contains("PRODUK")) {
+            // Always try to find matches
+            if (prompt.length() > 2) {
+                String upperPrompt = prompt.toUpperCase();
                 List<Produk> searchResults = allProduk.stream()
-                        .filter(p -> prompt.toLowerCase().contains(p.getNamaProduk().toLowerCase()))
-                        .limit(5)
+                        .filter(p -> {
+                            String upperName = p.getNamaProduk().toUpperCase();
+                            return upperName.contains(upperPrompt) ||
+                                    (upperPrompt.contains("TEST") && upperName.startsWith("TEST"));
+                        })
+                        .limit(15) // Show more results
                         .collect(Collectors.toList());
 
                 if (!searchResults.isEmpty()) {
                     List<String> foundItems = searchResults.stream()
-                            .map(p -> "- " + p.getNamaProduk() + " (ID: " + p.getIdProduk() + ")")
+                            .map(p -> "- " + p.getNamaProduk() + " (Rp " + p.getHarga().intValue() + ") [ID: "
+                                    + p.getIdProduk() + "]")
                             .collect(Collectors.toList());
-                    searchContext = "\n\nKEMUNGKINAN PRODUK YANG DIMAKSUD USER:\n" + String.join("\n", foundItems);
+                    searchContext = "\n\nHASIL PENCARIAN DATABASE (Gunakan data ini!):\n"
+                            + String.join("\n", foundItems) + "\n\n";
                 }
             }
 
-            String finalSystemContext = systemContext + searchContext;
+            String finalSystemContext = systemContext + searchContext +
+                    "\nINSTRUKSI KHUSUS: Jika ada 'HASIL PENCARIAN DATABASE' di atas, TAMPILKAN SEMUA DATA ITU. JANGAN MENGARANG ATAU MENYEMBUNYIKAN DATA.";
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
