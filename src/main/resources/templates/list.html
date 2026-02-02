@@ -471,11 +471,41 @@
                 });
         }
 
+        function formatMessage(text) {
+            // Escape HTML to prevent XSS (only if it's from user, but let's do it for safety)
+            let escaped = text.replace(/[&<>"']/g, function (m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+
+            // Convert **bold** to <strong>
+            escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Convert * item or - item to bullets
+            escaped = escaped.replace(/^\s*[\*\-]\s+(.*)/gm, '• $1');
+
+            // Convert newlines to <br>
+            escaped = escaped.replace(/\n/g, '<br>');
+
+            return escaped;
+        }
+
         function appendMessage(sender, text) {
             const chatBody = document.getElementById('chatBody');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chat-message ' + sender;
-            messageDiv.innerText = text;
+
+            if (sender === 'ai') {
+                messageDiv.innerHTML = formatMessage(text);
+            } else {
+                messageDiv.innerText = text;
+            }
+
             chatBody.appendChild(messageDiv);
             chatBody.scrollTop = chatBody.scrollHeight;
         }

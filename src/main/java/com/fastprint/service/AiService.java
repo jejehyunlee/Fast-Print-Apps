@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.Comparator;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 @Service
 public class AiService {
@@ -29,6 +31,13 @@ public class AiService {
 
     public AiService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
+    }
+
+    private String formatRupiah(Double h) {
+        if (h == null)
+            return "Rp 0";
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("id", "ID"));
+        return "Rp " + formatter.format(h.longValue());
     }
 
     public String generateResponse(String prompt) {
@@ -58,26 +67,22 @@ public class AiService {
             Map<String, Long> countByKategori = allProduk.stream()
                     .collect(Collectors.groupingBy(p -> p.getKategori().getNamaKategori(), Collectors.counting()));
 
-            // Analisa Harga (Terkecil/Terbesar)
-            Produk termahal = allProduk.stream()
-                    .max(Comparator.comparing(Produk::getHarga))
-                    .orElse(null);
-            Produk termurah = allProduk.stream()
-                    .min(Comparator.comparing(Produk::getHarga))
-                    .orElse(null);
+            // Analisa Harga
+            Produk termahal = allProduk.stream().max(Comparator.comparing(Produk::getHarga)).orElse(null);
+            Produk termurah = allProduk.stream().min(Comparator.comparing(Produk::getHarga)).orElse(null);
 
-            // Analisa Statistik Kategori (Terkecil/Terbanyak)
+            // Analisa Statistik Kategori
             long minCount = countByKategori.values().stream().min(Long::compare).orElse(0L);
             long maxCount = countByKategori.values().stream().max(Long::compare).orElse(0L);
 
             List<String> katTerkecil = countByKategori.entrySet().stream()
                     .filter(e -> e.getValue() == minCount)
-                    .map(e -> e.getKey() + " (" + e.getValue() + ")")
+                    .map(e -> e.getKey() + " (" + e.getValue() + " produk)")
                     .collect(Collectors.toList());
 
             List<String> katTerbanyak = countByKategori.entrySet().stream()
                     .filter(e -> e.getValue() == maxCount)
-                    .map(e -> e.getKey() + " (" + e.getValue() + ")")
+                    .map(e -> e.getKey() + " (" + e.getValue() + " produk)")
                     .collect(Collectors.toList());
 
             // --- AUDIT TRAIL ---
@@ -85,45 +90,35 @@ public class AiService {
                     .filter(p -> p.getCreatedAt() != null)
                     .max(Comparator.comparing(Produk::getCreatedAt))
                     .orElse(null);
-            Produk terlama = allProduk.stream()
-                    .filter(p -> p.getCreatedAt() != null)
-                    .min(Comparator.comparing(Produk::getCreatedAt))
-                    .orElse(null);
-
-            String auditPriceInfo = "";
-            if (termahal != null)
-                auditPriceInfo += "- Produk Termahal: " + termahal.getNamaProduk() + " (Rp " + termahal.getHarga()
-                        + ")\n";
-            if (termurah != null)
-                auditPriceInfo += "- Produk Termurah: " + termurah.getNamaProduk() + " (Rp " + termurah.getHarga()
-                        + ")\n";
-            if (terbaru != null)
-                auditPriceInfo += "- Produk Terbaru Masuk: " + terbaru.getNamaProduk() + " (" + terbaru.getCreatedAt()
-                        + ")\n";
-            if (terlama != null)
-                auditPriceInfo += "- Produk Terlama Sedekat: " + terlama.getNamaProduk() + " (" + terlama.getCreatedAt()
-                        + ")\n";
 
             String dataSummary = String.format(
-                    "REAL-TIME DATA SNAPSHOT:\n" +
-                            "- Total Produk: %d\n" +
-                            "- Statistik Status: %s\n" +
-                            "- Statistik Kategori: %s\n" +
-                            "- Kategori Terkecil (Jumlah Sama): %s\n" +
+                    "STATISTIK REAL-TIME:\n" +
+                            "- Total Keseluruhan: %d produk\n" +
+                            "- Status: %s\n" +
                             "- Kategori Terbanyak: %s\n" +
-                            "%s",
-                    total, countByStatus.toString(), countByKategori.toString(),
-                    String.join(", ", katTerkecil),
+                            "- Kategori Terkecil: %s\n" +
+                            "- Termahal: %s (%s)\n" +
+                            "- Termurah: %s (%s)\n" +
+                            "- Barang Baru: %s\n",
+                    total, countByStatus.toString(),
                     String.join(", ", katTerbanyak),
-                    auditPriceInfo);
+                    String.join(", ", katTerkecil),
+                    termahal != null ? termahal.getNamaProduk() : "N/A",
+                    formatRupiah(termahal != null ? termahal.getHarga() : 0.0),
+                    termurah != null ? termurah.getNamaProduk() : "N/A",
+                    formatRupiah(termurah != null ? termurah.getHarga() : 0.0),
+                    terbaru != null ? terbaru.getNamaProduk() : "Belum ada");
 
-            String systemContext = "Anda adalah 'FastPrint AI Assistant'. Anda memiliki akses penuh ke statistik data produk.\n"
+            String systemContext = "Anda adalah 'FastPrint AI Assistant', seorang asisten premium yang cerdas dan solutif.\n"
                     +
-                    "TUGAS: Jawablah pertanyaan pengguna dengan data angka yang sangat akurat dari snapshot di bawah.\n"
+                    "ATURAN FORMAT JAWABAN (WAJIB):\n" +
+                    "1. Gunakan Markdown untuk format teks: Gunakan **Tebal** untuk poin penting, angka, atau nama produk.\n"
                     +
-                    "INFORMASI HARGA: Jika ditanya harga termahal atau termurah, gunakan data spesifik yang disediakan.\n"
+                    "2. Format Harga: Selalu tuliskan harga dalam format Produk Rupiah yang cantik (Contoh: **Rp 1.500.000**).\n"
                     +
-                    "Gaya Bahasa: Ramah, Profesional, Informatif.\n\n" +
+                    "3. Layout: Gunakan bullet points atau penomoran agar jawaban rapi dan mudah dibaca.\n" +
+                    "4. Persona: Ramah, Profesional, dan Bangga menjadi bagian dari FastPrint.\n\n" +
+                    "DATA UNTUK ANDA:\n" +
                     dataSummary;
 
             Map<String, Object> requestBody = new HashMap<>();
@@ -149,10 +144,10 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "Maaf, saya sedang kehilangan fokus. Silahkan tanya lagi.";
+            return "Maaf, Groq AI sedang tidak memberikan respon.";
         } catch (Exception e) {
             e.printStackTrace();
-            return "Ada kendala teknis singkat. Silahkan coba lagi ya!";
+            return "Terjadi kendala teknis: " + e.getMessage();
         }
     }
 }
