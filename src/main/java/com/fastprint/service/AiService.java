@@ -135,10 +135,30 @@ public class AiService {
                     "DATA SNAPSHOT:\n" +
                     dataSummary;
 
+            // --- SEARCH CONTEXT ---
+            // Jika user menyebutkan nama produk spesifik (misal "TEST"), cari di database
+            // untuk memberikan ID yang benar
+            String searchContext = "";
+            if (prompt.toUpperCase().contains("TEST") || prompt.toUpperCase().contains("PRODUK")) {
+                List<Produk> searchResults = allProduk.stream()
+                        .filter(p -> prompt.toLowerCase().contains(p.getNamaProduk().toLowerCase()))
+                        .limit(5)
+                        .collect(Collectors.toList());
+
+                if (!searchResults.isEmpty()) {
+                    List<String> foundItems = searchResults.stream()
+                            .map(p -> "- " + p.getNamaProduk() + " (ID: " + p.getIdProduk() + ")")
+                            .collect(Collectors.toList());
+                    searchContext = "\n\nKEMUNGKINAN PRODUK YANG DIMAKSUD USER:\n" + String.join("\n", foundItems);
+                }
+            }
+
+            String finalSystemContext = systemContext + searchContext;
+
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
             requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", systemContext),
+                    Map.of("role", "system", "content", finalSystemContext),
                     Map.of("role", "user", "content", prompt)));
 
             Map response = webClient.post()
