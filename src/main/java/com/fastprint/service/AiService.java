@@ -105,13 +105,21 @@ public class AiService {
                     auditInfo);
 
             String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
-                    "INFORMASI VALIDASI FORM PRODUK (Sangat Penting!):\n" +
-                    "1. Nama Produk: Wajib diisi (tidak boleh kosong/spasi saja).\n" +
-                    "2. Harga: Wajib diisi, harus berupa angka, dan HARUS POSITIF (tidak boleh nol atau negatif).\n" +
-                    "3. Kategori: Wajib dipilih dari daftar yang tersedia.\n" +
-                    "4. Status: Wajib dipilih dari daftar yang tersedia.\n" +
-                    "Catatan: TIDAK ADA validasi tanggal manual atau pengecekan nama duplikat saat ini.\n\n" +
-                    "TUGAS: Jawab pertanyaan user berdasarkan data snapshot dan aturan validasi di atas. Gunakan Bahasa Indonesia yang ramah.";
+                    "ALUR OPERASIONAL APLIKASI (Wajib Diikuti!):\n" +
+                    "1. TAMBAH Produk: Klik tombol 'Tambah Produk' di atas tabel. Isi form di Modal yang muncul, lalu klik 'Simpan Produk'.\n"
+                    +
+                    "2. EDIT Produk: Klik ikon PENSIL (biru) pada baris produk di tabel. Data akan terisi otomatis di Modal. Ubah data, lalu klik 'Simpan Produk'.\n"
+                    +
+                    "3. HAPUS Produk: Klik ikon TEMPAT SAMPAH (merah) pada baris produk. Klik 'Ya, Hapus!' pada konfirmasi yang muncul.\n"
+                    +
+                    "4. FILTER Status: Gunakan tombol-tombol filter di atas tabel (Semua, Bisa Dijual, Tidak Bisa Dijual).\n"
+                    +
+                    "5. CARI Produk: Ketik nama produk di kotak pencarian di atas tabel.\n\n" +
+                    "INFORMASI VALIDASI:\n" +
+                    "- Nama Produk: Tidak boleh kosong.\n" +
+                    "- Harga: Harus angka dan harus positif (tidak boleh minus atau nol).\n" +
+                    "- TIDAK ADA validasi alamat, tanggal manual, atau lokasi di aplikasi ini.\n\n" +
+                    "TUGAS: Jawab pertanyaan user sesuai alur nyata aplikasi di atas. Jangan mengarang fitur (seperti alamat atau lokasi) yang tidak disebutkan. Gunakan Bahasa Indonesia yang ramah.";
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
