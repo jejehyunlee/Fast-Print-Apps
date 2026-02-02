@@ -506,6 +506,32 @@
 
         function appendMessage(sender, text) {
             const chatBody = document.getElementById('chatBody');
+
+            // Handle Action Tags from AI
+            if (sender === 'ai') {
+                const actionRegex = /\[\[ACTION:([A-Z]+)(?::(\d+))?\]\]/;
+                const match = text.match(actionRegex);
+
+                if (match) {
+                    const actionType = match[1];
+                    const actionId = match[2];
+
+                    // Remove tag from display
+                    text = text.replace(actionRegex, '');
+
+                    // Execute Action after a slight delay
+                    setTimeout(() => {
+                        if (actionType === 'CREATE') {
+                            openAddModal();
+                        } else if (actionType === 'EDIT' && actionId) {
+                            editProduk(actionId);
+                        } else if (actionType === 'DELETE' && actionId) {
+                            confirmDelete(actionId);
+                        }
+                    }, 1000);
+                }
+            }
+
             const messageDiv = document.createElement('div');
             messageDiv.className = 'chat-message ' + sender;
 

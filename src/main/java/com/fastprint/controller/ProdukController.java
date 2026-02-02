@@ -78,7 +78,7 @@ public class ProdukController {
             return "list";
         }
 
-        produkService.saveProduk(produk);
+        produkService.saveProduk(produk, "Test Programmer|Jefri Saputra");
         redirectAttributes.addFlashAttribute("message", "Produk berhasil disimpan!");
         return "redirect:/produk";
     }
@@ -92,7 +92,7 @@ public class ProdukController {
 
     @GetMapping("/delete/{id}")
     public String deleteProduk(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        produkService.deleteProduk(id);
+        produkService.deleteProduk(id, "Test Programmer|Jefri Saputra");
         redirectAttributes.addFlashAttribute("message", "Produk berhasil dihapus!");
         return "redirect:/produk";
     }

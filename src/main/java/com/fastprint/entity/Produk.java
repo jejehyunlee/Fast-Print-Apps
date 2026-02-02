@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@org.hibernate.annotations.SQLRestriction("deleted_at IS NULL")
 public class Produk {
 
     @Id
@@ -46,4 +47,16 @@ public class Produk {
     @Column(name = "updated_at")
     @org.hibernate.annotations.UpdateTimestamp
     private java.time.LocalDateTime updatedAt;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
+
+    @Column(name = "deleted_by")
+    private String deletedBy;
+
+    @Column(name = "deleted_at")
+    private java.time.LocalDateTime deletedAt;
 }

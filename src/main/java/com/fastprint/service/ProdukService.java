@@ -59,7 +59,7 @@ public class ProdukService {
                 .orElseThrow(() -> new RuntimeException("Produk not found with id: " + id));
     }
 
-    public void saveProduk(Produk produk) {
+    public void saveProduk(Produk produk, String user) {
         // Ensure Kategori exists or save it
         if (produk.getKategori() != null && produk.getKategori().getIdKategori() == null) {
             Optional<Kategori> katOpt = kategoriRepository.findByNamaKategori(produk.getKategori().getNamaKategori());
@@ -80,11 +80,28 @@ public class ProdukService {
             }
         }
 
+        // Audit Trail
+        if (produk.getIdProduk() == null) {
+            produk.setCreatedBy(user);
+        } else {
+            // Need to preserve createdBy if updating
+            Produk existing = produkRepository.findById(produk.getIdProduk()).orElse(null);
+            if (existing != null) {
+                produk.setCreatedBy(existing.getCreatedBy());
+                produk.setCreatedAt(existing.getCreatedAt());
+            }
+            produk.setUpdatedBy(user);
+        }
+
         produkRepository.save(produk);
     }
 
-    public void deleteProduk(Long id) {
-        produkRepository.deleteById(id);
+    public void deleteProduk(Long id, String user) {
+        Produk produk = produkRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produk not found with id: " + id));
+        produk.setDeletedBy(user);
+        produk.setDeletedAt(LocalDateTime.now());
+        produkRepository.save(produk);
     }
 
     // Logic to sync from API
