@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 public class AiService {
@@ -59,15 +60,29 @@ public class AiService {
             Map<String, Long> countByKategori = allProduk.stream()
                     .collect(Collectors.groupingBy(p -> p.getKategori().getNamaKategori(), Collectors.counting()));
 
+            // Analisa Statistik Kategori (Terkecil/Terbanyak)
+            long minCount = countByKategori.values().stream().min(Long::compare).orElse(0L);
+            long maxCount = countByKategori.values().stream().max(Long::compare).orElse(0L);
+
+            List<String> katTerkecil = countByKategori.entrySet().stream()
+                    .filter(e -> e.getValue() == minCount)
+                    .map(e -> e.getKey() + " (" + e.getValue() + ")")
+                    .collect(Collectors.toList());
+
+            List<String> katTerbanyak = countByKategori.entrySet().stream()
+                    .filter(e -> e.getValue() == maxCount)
+                    .map(e -> e.getKey() + " (" + e.getValue() + ")")
+                    .collect(Collectors.toList());
+
             // Mencari produk terbaru dan terlama (Audit Trail)
             Produk terbaru = allProduk.stream()
                     .filter(p -> p.getCreatedAt() != null)
-                    .max((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
+                    .max(Comparator.comparing(Produk::getCreatedAt))
                     .orElse(null);
 
             Produk terlama = allProduk.stream()
                     .filter(p -> p.getCreatedAt() != null)
-                    .min((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
+                    .min(Comparator.comparing(Produk::getCreatedAt))
                     .orElse(null);
 
             String auditInfo = "";
@@ -77,25 +92,26 @@ public class AiService {
                 auditInfo += "- Produk Terlama: " + terlama.getNamaProduk() + " (" + terlama.getCreatedAt() + ")\n";
 
             String dataSummary = String.format(
-                    "Ringkasan Data FastPrint Saat Ini:\n" +
+                    "REAL-TIME DATA SNAPSHOT:\n" +
                             "- Total Produk: %d\n" +
-                            "- Status: %s\n" +
-                            "- Kategori: %s\n" +
+                            "- Rincian Status: %s\n" +
+                            "- Rincian Kategori Selengkapnya: %s\n" +
+                            "- Kategori Terkecil (JUMLAH SAMA): %s\n" +
+                            "- Kategori Terbanyak: %s\n" +
                             "%s",
-                    total, countByStatus.toString(), countByKategori.toString(), auditInfo);
+                    total, countByStatus.toString(), countByKategori.toString(),
+                    String.join(", ", katTerkecil),
+                    String.join(", ", katTerbanyak),
+                    auditInfo);
 
-            String systemContext = "Anda adalah 'FastPrint AI Assistant'. Anda adalah pakar dalam mengelola data percetakan di aplikasi ini.\n"
+            String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
+                    "TUGAS UTAMA: Memberikan informasi akurat dari data yang diberikan.\n" +
+                    "ATURAN PENTING:\n" +
+                    "1. Jika ada beberapa kategori dengan jumlah yang sama (misal: sama-sama paling sedikit), sebutkan SEMUANYA.\n"
                     +
-                    "IDENTITAS DAN GAYA:\n" +
-                    "- Gunakan Bahasa Indonesia yang sangat ramah, profesional, dan to-the-point.\n" +
-                    "- Selalu berikan data yang akurat berdasarkan ringkasan data yang diberikan sistem.\n\n" +
-                    "PENGETAHUAN APLIKASI:\n" +
-                    "- Menu Dashboard: Menampilkan grafik dan ringkasan.\n" +
-                    "- Menu Master Produk: Tempat menambah (tombol biru), edit (ikon pensil), atau hapus (ikon sampah) produk.\n"
-                    +
-                    "- Validasi: Harga harus angka, nama tidak boleh kosong.\n\n" +
-                    dataSummary + "\n" +
-                    "INSTRUKSI: Jika user bertanya jumlah, jawab dengan angka persis dari data di atas. Jangan mengarang data.";
+                    "2. Jawab dalam Bahasa Indonesia yang ramah dan profesional.\n" +
+                    "3. Jangan mengarang data di luar snapshot yang diberikan.\n\n" +
+                    dataSummary;
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
@@ -122,6 +138,7 @@ public class AiService {
             }
             return "FastPrint AI sedang memproses permintaan lain. Coba lagi dalam beberapa saat.";
         } catch (Exception e) {
+            e.printStackTrace();
             return "Ada kendala teknis singkat. Silahkan coba lagi ya!";
         }
     }
