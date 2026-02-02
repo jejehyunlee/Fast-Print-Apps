@@ -28,43 +28,43 @@ public class AiService {
 
     public String generateResponse(String prompt) {
         try {
-            // Debug: Cek apakah API Key terbaca (Hanya tampilkan 5 karakter awal)
-            if (apiKey == null || apiKey.isEmpty()) {
-                System.err.println("DEBUG AI: API Key KOSONG!");
-            } else {
-                System.out.println("DEBUG AI: API Key Terdeteksi (" + apiKey.substring(0, 7) + "...)");
+            // Pembersihan Key (Penting!)
+            String finalApiKey = System.getenv("GROQ_API_KEY");
+            if (finalApiKey == null || finalApiKey.isEmpty()) {
+                finalApiKey = System.getProperty("GROQ_API_KEY");
+            }
+            if (finalApiKey == null || finalApiKey.isEmpty()) {
+                finalApiKey = apiKey;
             }
 
-            // Mengambil sedikit data nyata untuk konteks AI
+            if (finalApiKey != null) {
+                finalApiKey = finalApiKey.trim(); // Hapus spasi liar
+            }
+
+            if (finalApiKey == null || finalApiKey.isEmpty()) {
+                return "Waduh, API Key Groq belum terdeteksi. Silahkan cek konfigurasi .env Anda.";
+            }
+
+            // Informasi Nyata dari Database
             int totalProduk = produkService.findAllProduk().size();
             int bisaDijual = produkService.findProdukBisaDijual().size();
 
-            String systemContext = "Anda adalah 'FastPrint AI', asisten pintar khusus untuk aplikasi FastPrint (Sistem Manajemen Produk Percetakan).\n"
-                    +
-                    "Konteks Aplikasi:\n" +
-                    "- Nama: FastPrint\n" +
-                    "- Fitur Utama: Dashboard (Statistik), Master Produk (Data Produk, Kategori, Status), Penjualan.\n"
-                    +
-                    "- Operasi: Pengguna bisa menambah, mengedit, dan menghapus produk di menu 'Master Produk'.\n" +
-                    "- Statistik Saat Ini: Terdapat total " + totalProduk + " produk di sistem, di mana " + bisaDijual
-                    + " statusnya 'bisa dijual'.\n\n" +
-                    "Tugas Anda:\n" +
-                    "1. Jawablah pertanyaan pengguna terkait penggunaan aplikasi FastPrint.\n" +
-                    "2. Gunakan Bahasa Indonesia yang ramah, profesional, dan sedikit santai (seperti rekan kerja).\n" +
-                    "3. Jika ditanya cara tambah data, beri tahu untuk ke 'Master Produk' -> tombol 'Tambah Produk'.\n"
-                    +
-                    "4. Jika ditanya soal harga, ingatkan bahwa input harga harus berupa angka.\n" +
-                    "5. Jangan menjawab pertanyaan di luar konteks aplikasi kecuali jika sangat umum, namun arahkan kembali ke FastPrint.";
+            String systemContext = "Anda adalah 'FastPrint AI', asisten cerdas khusus untuk FastPrint System.\n" +
+                    "Konteks Sistem:\n" +
+                    "- Dashboard: Statistik ringkas.\n" +
+                    "- Master Produk: Kelola data (Tambah/Edit/Hapus).\n" +
+                    "- Data Nyata Saat Ini: " + totalProduk + " total produk (" + bisaDijual + " bisa dijual).\n\n" +
+                    "Gunakan Bahasa Indonesia yang ramah. Jawab pertanyaan user sesuai konteks aplikasi FastPrint.";
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "llama-3.3-70b-versatile");
+            requestBody.put("model", "llama3-70b-8192");
             requestBody.put("messages", List.of(
                     Map.of("role", "system", "content", systemContext),
                     Map.of("role", "user", "content", prompt)));
 
             Map response = webClient.post()
                     .uri(apiUrl)
-                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Authorization", "Bearer " + finalApiKey)
                     .header("Content-Type", "application/json")
                     .bodyValue(requestBody)
                     .retrieve()
@@ -79,10 +79,10 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "Maaf, FastPrint AI sedang sulit dihubungi. Coba lagi nanti ya!";
+            return "Maaf, Groq AI sedang tidak memberikan respon.";
         } catch (Exception e) {
             e.printStackTrace();
-            return "Waduh, ada kendala teknis saat saya mencoba berpikir. Error: " + e.getMessage();
+            return "Terjadi kendala teknis: " + e.getMessage();
         }
     }
 }
