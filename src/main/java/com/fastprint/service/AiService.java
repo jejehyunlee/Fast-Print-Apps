@@ -1,5 +1,8 @@
 package com.fastprint.service;
 
+import com.fastprint.entity.Kategori;
+import com.fastprint.entity.Produk;
+import com.fastprint.entity.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -7,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class AiService {
@@ -14,7 +18,7 @@ public class AiService {
     @Value("${groq.api.key}")
     private String apiKey;
 
-    @Value("${groq.api.url}")
+    @Value("${groq.api.url:https://api.groq.com/openai/v1/chat/completions}")
     private String apiUrl;
 
     private final WebClient webClient;
@@ -28,7 +32,7 @@ public class AiService {
 
     public String generateResponse(String prompt) {
         try {
-            // Pembersihan Key (Penting!)
+            // Resolusi API Key dengan trim dan fallback
             String finalApiKey = System.getenv("GROQ_API_KEY");
             if (finalApiKey == null || finalApiKey.isEmpty()) {
                 finalApiKey = System.getProperty("GROQ_API_KEY");
@@ -36,28 +40,46 @@ public class AiService {
             if (finalApiKey == null || finalApiKey.isEmpty()) {
                 finalApiKey = apiKey;
             }
-
-            if (finalApiKey != null) {
-                finalApiKey = finalApiKey.trim(); // Hapus spasi liar
-            }
+            if (finalApiKey != null)
+                finalApiKey = finalApiKey.trim();
 
             if (finalApiKey == null || finalApiKey.isEmpty()) {
-                return "Waduh, API Key Groq belum terdeteksi. Silahkan cek konfigurasi .env Anda.";
+                return "Maaf, konfigurasi API Key belum lengkap di server.";
             }
 
-            // Informasi Nyata dari Database
-            int totalProduk = produkService.findAllProduk().size();
-            int bisaDijual = produkService.findProdukBisaDijual().size();
+            // --- DATA SNAPSHOT UNTUK AI ---
+            List<Produk> allProduk = produkService.findAllProduk();
+            int total = allProduk.size();
 
-            String systemContext = "Anda adalah 'FastPrint AI', asisten cerdas khusus untuk FastPrint System.\n" +
-                    "Konteks Sistem:\n" +
-                    "- Dashboard: Statistik ringkas.\n" +
-                    "- Master Produk: Kelola data (Tambah/Edit/Hapus).\n" +
-                    "- Data Nyata Saat Ini: " + totalProduk + " total produk (" + bisaDijual + " bisa dijual).\n\n" +
-                    "Gunakan Bahasa Indonesia yang ramah. Jawab pertanyaan user sesuai konteks aplikasi FastPrint.";
+            // Hitung per status
+            Map<String, Long> countByStatus = allProduk.stream()
+                    .collect(Collectors.groupingBy(p -> p.getStatus().getNamaStatus(), Collectors.counting()));
+
+            // Hitung per kategori
+            Map<String, Long> countByKategori = allProduk.stream()
+                    .collect(Collectors.groupingBy(p -> p.getKategori().getNamaKategori(), Collectors.counting()));
+
+            String dataSummary = String.format(
+                    "Ringkasan Data FastPrint Saat Ini:\n" +
+                            "- Total Produk: %d\n" +
+                            "- Status: %s\n" +
+                            "- Kategori: %s\n",
+                    total, countByStatus.toString(), countByKategori.toString());
+
+            String systemContext = "Anda adalah 'FastPrint AI Assistant'. Anda adalah pakar dalam mengelola data percetakan di aplikasi ini.\n"
+                    +
+                    "IDENTITAS DAN GAYA:\n" +
+                    "- Gunakan Bahasa Indonesia yang sangat ramah, profesional, dan to-the-point.\n" +
+                    "- Selalu berikan data yang akurat berdasarkan ringkasan data yang diberikan sistem.\n\n" +
+                    "PENGETAHUAN APLIKASI:\n" +
+                    "- Menu Dashboard: Menampilkan grafik dan ringkasan.\n" +
+                    "- Menu Master Produk: Tempat menambah (tombol biru), edit (ikon pensil), atau hapus (ikon sampah) produk.\n"
+                    +
+                    "- Validasi: Harga harus angka, nama tidak boleh kosong.\n\n" +
+                    dataSummary + "\n" +
+                    "INSTRUKSI: Jika user bertanya jumlah, jawab dengan angka persis dari data di atas. Jangan mengarang data.";
 
             Map<String, Object> requestBody = new HashMap<>();
-            // Menggunakan llama-3.1-8b-instant yang paling stabil dan cepat
             requestBody.put("model", "llama-3.1-8b-instant");
             requestBody.put("messages", List.of(
                     Map.of("role", "system", "content", systemContext),
@@ -80,10 +102,9 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "Maaf, Groq AI sedang tidak memberikan respon.";
+            return "FastPrint AI sedang memproses permintaan lain. Coba lagi dalam beberapa saat.";
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Terjadi kendala teknis: " + e.getMessage();
+            return "Ada kendala teknis singkat. Silahkan coba lagi ya!";
         }
     }
 }
