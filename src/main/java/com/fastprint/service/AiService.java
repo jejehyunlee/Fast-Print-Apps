@@ -140,19 +140,34 @@ public class AiService {
             // Always try to find matches
             if (prompt.length() > 2) {
                 String upperPrompt = prompt.toUpperCase();
+                String[] keywords = upperPrompt.split("\\s+");
+
                 List<Produk> searchResults = allProduk.stream()
                         .filter(p -> {
                             String upperName = p.getNamaProduk().toUpperCase();
-                            return upperName.contains(upperPrompt) ||
-                                    (upperPrompt.contains("TEST") && upperName.startsWith("TEST"));
+                            // 1. Strict match
+                            if (upperName.contains(upperPrompt) || upperPrompt.contains(upperName))
+                                return true;
+                            // 2. Keyword match (Tokens)
+                            for (String key : keywords) {
+                                if (key.length() >= 3 && upperName.contains(key) && !key.equals("DATA")
+                                        && !key.equals("CARI")) {
+                                    return true;
+                                }
+                            }
+                            return false;
                         })
                         .limit(15) // Show more results
                         .collect(Collectors.toList());
 
                 if (!searchResults.isEmpty()) {
                     List<String> foundItems = searchResults.stream()
-                            .map(p -> "- " + p.getNamaProduk() + " (Rp " + p.getHarga().intValue() + ") [ID: "
-                                    + p.getIdProduk() + "]")
+                            .map(p -> String.format("- [ID:%d] %s | Kat: %s | Sts: %s | %s",
+                                    p.getIdProduk(),
+                                    p.getNamaProduk(),
+                                    p.getKategori() != null ? p.getKategori().getNamaKategori() : "-",
+                                    p.getStatus() != null ? p.getStatus().getNamaStatus() : "-",
+                                    formatRupiah(p.getHarga())))
                             .collect(Collectors.toList());
                     searchContext = "\n\nHASIL PENCARIAN DATABASE (Gunakan data ini!):\n"
                             + String.join("\n", foundItems) + "\n\n";
@@ -160,7 +175,7 @@ public class AiService {
             }
 
             String finalSystemContext = systemContext + searchContext +
-                    "\nINSTRUKSI KHUSUS: Jika ada 'HASIL PENCARIAN DATABASE' di atas, TAMPILKAN SEMUA DATA ITU. JANGAN MENGARANG ATAU MENYEMBUNYIKAN DATA.";
+                    "\nINSTRUKSI KHUSUS: Jika ada 'HASIL PENCARIAN DATABASE', sajikan dalam BENTUK TABEL MARKDOWN (No, Nama Produk, Kategori, Harga, Status). JANGAN ubah data, JANGAN tambah data fiktif.";
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
