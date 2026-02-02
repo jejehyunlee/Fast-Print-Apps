@@ -151,9 +151,17 @@ public class ProdukService {
                                 return statusRepository.save(s);
                             });
 
-                    // Save Produk
-                    Produk produk = new Produk();
-                    produk.setNamaProduk(nama);
+                    // Save or Update Produk
+                    Produk existingProduk = produkRepository.findByNamaProduk(nama);
+                    Produk produk;
+
+                    if (existingProduk != null) {
+                        produk = existingProduk;
+                    } else {
+                        produk = new Produk();
+                        produk.setNamaProduk(nama);
+                    }
+
                     produk.setHarga(harga);
                     produk.setKategori(kategori);
                     produk.setStatus(status);

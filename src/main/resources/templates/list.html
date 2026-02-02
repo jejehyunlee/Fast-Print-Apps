@@ -95,9 +95,15 @@
                         <h5 class="fw-bold m-0">Produk Listing</h5>
                         <p class="text-secondary small m-0 mt-1">Kelola daftar produk Anda di sini.</p>
                     </div>
-                    <button type="button" class="btn btn-primary shadow-sm" onclick="openAddModal()">
-                        <i class="bi bi-plus-lg me-2"></i> Tambah Produk
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light text-primary shadow-sm fw-bold border-0"
+                            onclick="syncData()">
+                            <i class="bi bi-arrow-repeat me-2"></i> Sync API
+                        </button>
+                        <button type="button" class="btn btn-primary shadow-sm" onclick="openAddModal()">
+                            <i class="bi bi-plus-lg me-2"></i> Tambah Produk
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Unified Table Controls -->
@@ -387,6 +393,18 @@
                     window.location.href = '/produk/delete/' + id;
                 }
             })
+        }
+
+        function syncData() {
+            Swal.fire({
+                title: 'Sinkronisasi...',
+                text: 'Mengambil data terbaru dari API...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    window.location.href = '/produk/sync';
+                }
+            });
         }
         /*]]>*/
     </script>

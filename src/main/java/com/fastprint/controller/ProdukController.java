@@ -96,4 +96,11 @@ public class ProdukController {
         redirectAttributes.addFlashAttribute("message", "Produk berhasil dihapus!");
         return "redirect:/produk";
     }
+
+    @GetMapping("/sync")
+    public String syncData(RedirectAttributes redirectAttributes) {
+        produkService.syncDataFromApi();
+        redirectAttributes.addFlashAttribute("message", "Sinkronisasi data berhasil!");
+        return "redirect:/produk";
+    }
 }

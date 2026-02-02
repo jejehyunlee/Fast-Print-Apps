@@ -41,6 +41,7 @@ Sistem integrasi otomatis dengan API Recruitment Fast Print:
 - **Dynamic Authentication**: Username dihasilkan otomatis berdasarkan format waktu WIB terbaru.
 - **MD5 Security**: Implementasi algoritma hash MD5 untuk password sesuai spesifikasi API.
 - **Conflict Handling**: Logika penyimpanan cerdas yang menghindari duplikasi kategori dan status di database.
+- **Manual Sync**: Tombol khusus di dashboard untuk memicu sinkronisasi data kapan saja tanpa restart server.
 
 ### 🎨 5. Modern User Interface
 Desain yang "Wow" dengan fokus pada estetika:

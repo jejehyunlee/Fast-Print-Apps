@@ -18,4 +18,7 @@ public interface ProdukRepository extends JpaRepository<Produk, Long> {
 
     // Standard find by status method if needed
     List<Produk> findByStatus_NamaStatus(String namaStatus);
+
+    // Find by product name for deduplication
+    Produk findByNamaProduk(String namaProduk);
 }
