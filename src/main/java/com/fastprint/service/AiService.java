@@ -74,7 +74,7 @@ public class AiService {
                     .map(e -> e.getKey() + " (" + e.getValue() + ")")
                     .collect(Collectors.toList());
 
-            // Mencari produk terbaru dan terlama (Audit Trail)
+            // --- AUDIT TRAIL INFO ---
             Produk terbaru = allProduk.stream()
                     .filter(p -> p.getCreatedAt() != null)
                     .max(Comparator.comparing(Produk::getCreatedAt))
@@ -94,9 +94,9 @@ public class AiService {
             String dataSummary = String.format(
                     "REAL-TIME DATA SNAPSHOT:\n" +
                             "- Total Produk: %d\n" +
-                            "- Rincian Status: %s\n" +
-                            "- Rincian Kategori Selengkapnya: %s\n" +
-                            "- Kategori Terkecil (JUMLAH SAMA): %s\n" +
+                            "- Statistik Status: %s\n" +
+                            "- Statistik Kategori: %s\n" +
+                            "- Kategori Terkecil: %s\n" +
                             "- Kategori Terbanyak: %s\n" +
                             "%s",
                     total, countByStatus.toString(), countByKategori.toString(),
@@ -105,18 +105,18 @@ public class AiService {
                     auditInfo);
 
             String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
-                    "TUGAS UTAMA: Memberikan informasi akurat dari data yang diberikan.\n" +
-                    "ATURAN PENTING:\n" +
-                    "1. Jika ada beberapa kategori dengan jumlah yang sama (misal: sama-sama paling sedikit), sebutkan SEMUANYA.\n"
-                    +
-                    "2. Jawab dalam Bahasa Indonesia yang ramah dan profesional.\n" +
-                    "3. Jangan mengarang data di luar snapshot yang diberikan.\n\n" +
-                    dataSummary;
+                    "INFORMASI VALIDASI FORM PRODUK (Sangat Penting!):\n" +
+                    "1. Nama Produk: Wajib diisi (tidak boleh kosong/spasi saja).\n" +
+                    "2. Harga: Wajib diisi, harus berupa angka, dan HARUS POSITIF (tidak boleh nol atau negatif).\n" +
+                    "3. Kategori: Wajib dipilih dari daftar yang tersedia.\n" +
+                    "4. Status: Wajib dipilih dari daftar yang tersedia.\n" +
+                    "Catatan: TIDAK ADA validasi tanggal manual atau pengecekan nama duplikat saat ini.\n\n" +
+                    "TUGAS: Jawab pertanyaan user berdasarkan data snapshot dan aturan validasi di atas. Gunakan Bahasa Indonesia yang ramah.";
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
             requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", systemContext),
+                    Map.of("role", "system", "content", systemContext + "\n\n" + dataSummary),
                     Map.of("role", "user", "content", prompt)));
 
             Map response = webClient.post()
@@ -136,9 +136,8 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "FastPrint AI sedang memproses permintaan lain. Coba lagi dalam beberapa saat.";
+            return "Maaf, sedang ada gangguan koneksi ke otak AI saya.";
         } catch (Exception e) {
-            e.printStackTrace();
             return "Ada kendala teknis singkat. Silahkan coba lagi ya!";
         }
     }
