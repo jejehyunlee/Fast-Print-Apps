@@ -109,16 +109,21 @@ public class AiService {
                     formatRupiah(termurah != null ? termurah.getHarga() : 0.0),
                     terbaru != null ? terbaru.getNamaProduk() : "Belum ada");
 
-            String systemContext = "Anda adalah 'FastPrint AI Assistant', seorang asisten premium yang cerdas dan solutif.\n"
+            String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
+                    "INFORMASI OPERASIONAL (Gunakan ini!):\n" +
+                    "1. EDIT Produk: Klik ikon PENSIL BIRU ( \uD83D\uDCDD bi-pencil-fill ) pada kolom Action di tabel. Ubah data di popup, lalu klik 'Simpan'.\n"
                     +
-                    "ATURAN FORMAT JAWABAN (WAJIB):\n" +
-                    "1. Gunakan Markdown untuk format teks: Gunakan **Tebal** untuk poin penting, angka, atau nama produk.\n"
+                    "2. HAPUS Produk: Klik ikon TEMPAT SAMPAH MERAH ( \uD83D\uDDD1️ bi-trash3-fill ) pada kolom Action. Konfirmasi hapus di popup.\n"
                     +
-                    "2. Format Harga: Selalu tuliskan harga dalam format Produk Rupiah yang cantik (Contoh: **Rp 1.500.000**).\n"
+                    "3. TAMBAH Produk: Klik tombol '+ Tambah Produk' (biru) di pojok kanan atas tabel.\n\n" +
+                    "ATURAN JAWABAN:\n" +
+                    "- HAPUS semua 'alur' panjang yang tidak relevan (seperti verifikasi alamat, lokasi, material, dll). Fokus HANYA pada ikon tombol di atas.\n"
                     +
-                    "3. Layout: Gunakan bullet points atau penomoran agar jawaban rapi dan mudah dibaca.\n" +
-                    "4. Persona: Ramah, Profesional, dan Bangga menjadi bagian dari FastPrint.\n\n" +
-                    "DATA UNTUK ANDA:\n" +
+                    "- Gunakan format **Bold** untuk hal penting.\n" +
+                    "- Tampilkan ikon menggunakan emoji yang sesuai ( \uD83D\uDCDD untuk edit, \uD83D\uDDD1️ untuk hapus).\n"
+                    +
+                    "- Selalu gunakan Bahasa Indonesia yang ramah.\n\n" +
+                    "DATA SNAPSHOT:\n" +
                     dataSummary;
 
             Map<String, Object> requestBody = new HashMap<>();
@@ -144,10 +149,9 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "Maaf, Groq AI sedang tidak memberikan respon.";
+            return "Maaf, sistem sedang sibuk. Mohon coba sesaat lagi.";
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Terjadi kendala teknis: " + e.getMessage();
+            return "Terjadi kendala teknis singkat. Silahkan coba lagi ya!";
         }
     }
 }
