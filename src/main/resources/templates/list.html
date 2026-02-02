@@ -527,6 +527,8 @@
                             editProduk(actionId);
                         } else if (actionType === 'DELETE' && actionId) {
                             confirmDelete(actionId);
+                        } else if (actionType === 'SYNC_API') {
+                            syncData();
                         }
                     }, 1000);
                 }

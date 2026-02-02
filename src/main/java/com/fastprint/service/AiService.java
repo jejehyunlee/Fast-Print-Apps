@@ -126,11 +126,12 @@ public class AiService {
                     "- Tampilkan ikon menggunakan emoji yang sesuai ( \uD83D\uDCDD untuk edit, \uD83D\uDDD1️ untuk hapus).\n"
                     +
                     "- Selalu gunakan Bahasa Indonesia yang ramah.\n" +
-                    "- ACTION TAGS (Gunakan ini di akhir respon jika user meminta aksi spesifik):\n" +
-                    "  * Jika user ingin TAMBAH produk: Tulis '[[ACTION:CREATE]]' di akhir.\n" +
-                    "  * Jika user ingin EDIT produk ID X: Tulis '[[ACTION:EDIT:X]]' di akhir (Ganti X dengan ID angka).\n"
+                    "- ACTION TAGS (Gunakan HANYA jika user MEMINTA EKSPLISIT untuk melakukan aksi ini, jangan gunakan jika hanya bertanya info):\n"
                     +
-                    "  * Jika user ingin HAPUS produk ID X: Tulis '[[ACTION:DELETE:X]]' di akhir.\n\n" +
+                    "  * Jika user ingin TAMBAH produk: Tulis '[[ACTION:CREATE]]' di akhir.\n" +
+                    "  * Jika user ingin EDIT produk ID X: Tulis '[[ACTION:EDIT:X]]' di akhir.\n" +
+                    "  * Jika user ingin HAPUS produk ID X: Tulis '[[ACTION:DELETE:X]]' di akhir.\n" +
+                    "  * Jika user ingin SYNC API: Tulis '[[ACTION:SYNC_API]]' di akhir.\n\n" +
                     "DATA SNAPSHOT:\n" +
                     dataSummary;
 
