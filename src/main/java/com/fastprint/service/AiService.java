@@ -157,7 +157,7 @@ public class AiService {
                             }
                             return false;
                         })
-                        .limit(15) // Show more results
+                        .limit(Integer.MAX_VALUE)
                         .collect(Collectors.toList());
 
                 if (!searchResults.isEmpty()) {
