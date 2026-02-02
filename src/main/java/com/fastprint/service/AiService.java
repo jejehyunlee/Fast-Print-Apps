@@ -52,13 +52,19 @@ public class AiService {
             List<Produk> allProduk = produkService.findAllProduk();
             int total = allProduk.size();
 
-            // Hitung per status
+            // Statistik Status & Kategori
             Map<String, Long> countByStatus = allProduk.stream()
                     .collect(Collectors.groupingBy(p -> p.getStatus().getNamaStatus(), Collectors.counting()));
-
-            // Hitung per kategori
             Map<String, Long> countByKategori = allProduk.stream()
                     .collect(Collectors.groupingBy(p -> p.getKategori().getNamaKategori(), Collectors.counting()));
+
+            // Analisa Harga (Terkecil/Terbesar)
+            Produk termahal = allProduk.stream()
+                    .max(Comparator.comparing(Produk::getHarga))
+                    .orElse(null);
+            Produk termurah = allProduk.stream()
+                    .min(Comparator.comparing(Produk::getHarga))
+                    .orElse(null);
 
             // Analisa Statistik Kategori (Terkecil/Terbanyak)
             long minCount = countByKategori.values().stream().min(Long::compare).orElse(0L);
@@ -74,57 +80,56 @@ public class AiService {
                     .map(e -> e.getKey() + " (" + e.getValue() + ")")
                     .collect(Collectors.toList());
 
-            // --- AUDIT TRAIL INFO ---
+            // --- AUDIT TRAIL ---
             Produk terbaru = allProduk.stream()
                     .filter(p -> p.getCreatedAt() != null)
                     .max(Comparator.comparing(Produk::getCreatedAt))
                     .orElse(null);
-
             Produk terlama = allProduk.stream()
                     .filter(p -> p.getCreatedAt() != null)
                     .min(Comparator.comparing(Produk::getCreatedAt))
                     .orElse(null);
 
-            String auditInfo = "";
+            String auditPriceInfo = "";
+            if (termahal != null)
+                auditPriceInfo += "- Produk Termahal: " + termahal.getNamaProduk() + " (Rp " + termahal.getHarga()
+                        + ")\n";
+            if (termurah != null)
+                auditPriceInfo += "- Produk Termurah: " + termurah.getNamaProduk() + " (Rp " + termurah.getHarga()
+                        + ")\n";
             if (terbaru != null)
-                auditInfo += "- Produk Terbaru: " + terbaru.getNamaProduk() + " (" + terbaru.getCreatedAt() + ")\n";
+                auditPriceInfo += "- Produk Terbaru Masuk: " + terbaru.getNamaProduk() + " (" + terbaru.getCreatedAt()
+                        + ")\n";
             if (terlama != null)
-                auditInfo += "- Produk Terlama: " + terlama.getNamaProduk() + " (" + terlama.getCreatedAt() + ")\n";
+                auditPriceInfo += "- Produk Terlama Sedekat: " + terlama.getNamaProduk() + " (" + terlama.getCreatedAt()
+                        + ")\n";
 
             String dataSummary = String.format(
                     "REAL-TIME DATA SNAPSHOT:\n" +
                             "- Total Produk: %d\n" +
                             "- Statistik Status: %s\n" +
                             "- Statistik Kategori: %s\n" +
-                            "- Kategori Terkecil: %s\n" +
+                            "- Kategori Terkecil (Jumlah Sama): %s\n" +
                             "- Kategori Terbanyak: %s\n" +
                             "%s",
                     total, countByStatus.toString(), countByKategori.toString(),
                     String.join(", ", katTerkecil),
                     String.join(", ", katTerbanyak),
-                    auditInfo);
+                    auditPriceInfo);
 
-            String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
-                    "ALUR OPERASIONAL APLIKASI (Wajib Diikuti!):\n" +
-                    "1. TAMBAH Produk: Klik tombol 'Tambah Produk' di atas tabel. Isi form di Modal yang muncul, lalu klik 'Simpan Produk'.\n"
+            String systemContext = "Anda adalah 'FastPrint AI Assistant'. Anda memiliki akses penuh ke statistik data produk.\n"
                     +
-                    "2. EDIT Produk: Klik ikon PENSIL (biru) pada baris produk di tabel. Data akan terisi otomatis di Modal. Ubah data, lalu klik 'Simpan Produk'.\n"
+                    "TUGAS: Jawablah pertanyaan pengguna dengan data angka yang sangat akurat dari snapshot di bawah.\n"
                     +
-                    "3. HAPUS Produk: Klik ikon TEMPAT SAMPAH (merah) pada baris produk. Klik 'Ya, Hapus!' pada konfirmasi yang muncul.\n"
+                    "INFORMASI HARGA: Jika ditanya harga termahal atau termurah, gunakan data spesifik yang disediakan.\n"
                     +
-                    "4. FILTER Status: Gunakan tombol-tombol filter di atas tabel (Semua, Bisa Dijual, Tidak Bisa Dijual).\n"
-                    +
-                    "5. CARI Produk: Ketik nama produk di kotak pencarian di atas tabel.\n\n" +
-                    "INFORMASI VALIDASI:\n" +
-                    "- Nama Produk: Tidak boleh kosong.\n" +
-                    "- Harga: Harus angka dan harus positif (tidak boleh minus atau nol).\n" +
-                    "- TIDAK ADA validasi alamat, tanggal manual, atau lokasi di aplikasi ini.\n\n" +
-                    "TUGAS: Jawab pertanyaan user sesuai alur nyata aplikasi di atas. Jangan mengarang fitur (seperti alamat atau lokasi) yang tidak disebutkan. Gunakan Bahasa Indonesia yang ramah.";
+                    "Gaya Bahasa: Ramah, Profesional, Informatif.\n\n" +
+                    dataSummary;
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", "llama-3.1-8b-instant");
             requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", systemContext + "\n\n" + dataSummary),
+                    Map.of("role", "system", "content", systemContext),
                     Map.of("role", "user", "content", prompt)));
 
             Map response = webClient.post()
@@ -144,8 +149,9 @@ public class AiService {
                     return (String) message.get("content");
                 }
             }
-            return "Maaf, sedang ada gangguan koneksi ke otak AI saya.";
+            return "Maaf, saya sedang kehilangan fokus. Silahkan tanya lagi.";
         } catch (Exception e) {
+            e.printStackTrace();
             return "Ada kendala teknis singkat. Silahkan coba lagi ya!";
         }
     }
