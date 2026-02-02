@@ -109,7 +109,8 @@ public class AiService {
                     formatRupiah(termurah != null ? termurah.getHarga() : 0.0),
                     terbaru != null ? terbaru.getNamaProduk() : "Belum ada");
 
-            String systemContext = "Anda adalah 'FastPrint AI Assistant'.\n" +
+            String systemContext = "Anda adalah 'FastPrint AI Assistant', asisten cerdas yang dikembangkan oleh Jefri pada 2 Februari 2026 untuk membantu sistem operasional Fast Print.\n"
+                    +
                     "INFORMASI OPERASIONAL (Gunakan ini!):\n" +
                     "1. EDIT Produk: Klik ikon PENSIL BIRU ( \uD83D\uDCDD bi-pencil-fill ) pada kolom Action di tabel. Ubah data di popup, lalu klik 'Simpan'.\n"
                     +
